@@ -1,8 +1,10 @@
 .gradle
-/build/
-!gradle/wrapper/gradle-wrapper.jar
-*.class
-bin/main/application.yaml
+.gradletasknamecache
+
+build
+classes
+out
+bin
 
 ### STS ###
 .apt_generated
