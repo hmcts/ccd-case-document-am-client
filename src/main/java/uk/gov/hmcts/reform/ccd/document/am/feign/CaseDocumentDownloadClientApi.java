@@ -1,16 +1,12 @@
 package uk.gov.hmcts.reform.ccd.document.am.feign;
 
-import feign.Headers;
-import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 
 import java.util.UUID;
 
@@ -20,7 +16,7 @@ import java.util.UUID;
 public interface CaseDocumentDownloadClientApi {
 
     @RequestMapping(method = RequestMethod.GET, value = "/cases/documents/{documentId}")
-    ResponseEntity<Object> getMetadataForDocument( @RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
+    ResponseEntity<Object> getMetadataForDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
                                      @RequestHeader("ServiceAuthorization") String serviceAuth,
                                      @PathVariable("documentId") UUID documentId);
 
