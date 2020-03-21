@@ -1,3 +1,12 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
+  }
+}
+
 plugins {
   id 'checkstyle'
   id 'io.spring.dependency-management' version '1.0.6.RELEASE'
@@ -9,15 +18,24 @@ plugins {
   id 'maven-publish'
   id 'net.ltgt.apt' version '0.21'
 }
+apply plugin: 'checkstyle'
+apply plugin: 'java-library'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
-def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "DEV-SNAPSHOT"
+def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "8.0.0"
 
 group 'uk.gov.hmcts.reform'
 version buildNumber
 
+
 checkstyle {
   maxWarnings = 0
   toolVersion = '8.5'
+  // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
+  configDir = new File(rootDir, 'config/checkstyle')
 }
 
 sourceCompatibility = 1.8
@@ -31,8 +49,14 @@ compileTestJava {
 }
 
 repositories {
-  mavenLocal()
+  maven {
+    url "https://dl.bintray.com/hmcts/hmcts-maven"
+  }
+  maven {
+    url 'https://repo.spring.io/libs-milestone'
+  }
   jcenter()
+  mavenLocal()
 }
 
 jar {
@@ -46,6 +70,7 @@ task printVersion {
     print project.version
   }
 }
+
 
 def pomConfig = {
   licenses {
@@ -77,28 +102,23 @@ artifacts {
   archives javadocJar
 }
 
-def gitRepo = "https://github.com/hmcts/ccd-case-document-am-client"
-
 publishing {
   publications {
-    mavenJava(MavenPublication) {
+    Main(MavenPublication) {
       from components.java
       artifact sourcesJar
       artifact javadocJar
+      groupId project.group
+      artifactId 'ccd-case-document-am-client'
+      version project.version
 
-      pom {
-        name = 'CCD case document am client'
-        description = 'CCD case document am client'
-        url = gitRepo
-        licenses {
-          license {
-            name = 'MIT License, Copyright (c) 2019 HM Courts & Tribunals Service'
-            url = "http://www.opensource.org/licenses/mit-license.php"
-          }
-        }
-        scm {
-          url = gitRepo
-        }
+      pom.withXml {
+        def root = asNode()
+        root.appendNode('description', 'Client library for communicating with CCD case document am client api')
+        root.appendNode('name', 'CCD case document am client')
+        root.appendNode('url', 'https://github.com/hmcts/ccd-case-document-am-client')
+
+        root.children().last() + pomConfig
       }
     }
   }
@@ -107,23 +127,24 @@ publishing {
 bintray {
   user = System.getenv('BINTRAY_USER')
   key = System.getenv('BINTRAY_KEY')
-  publications = ['mavenJava']
+  publications = ['Main']
   publish = true
   pkg {
     repo = 'hmcts-maven'
     name = 'ccd-case-document-am-client'
     userOrg = 'hmcts'
     licenses = ['MIT']
-    vcsUrl = gitRepo
+    vcsUrl = 'https://github.com/hmcts/ccd-case-document-am-client'
     version {
       name = project.version
     }
   }
 }
 
+
 ext {
   lombokVersion = '1.16.18'
-  springCloudVersion = 'Greenwich.RELEASE'
+  springCloudVersion = 'Finchley.RELEASE'
 }
 
 dependencyManagement {
@@ -153,9 +174,10 @@ task functionalTest(type: Test) {
 }
 
 dependencies {
-  compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   compile group: 'io.github.openfeign', name: 'feign-jackson'
+  compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
+
 
   compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
