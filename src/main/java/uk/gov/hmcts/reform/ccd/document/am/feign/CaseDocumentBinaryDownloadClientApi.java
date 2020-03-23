@@ -13,12 +13,7 @@ import java.util.UUID;
 @FeignClient(name = "case-document-am-download-api",
              url = "${case_document_am.url}"
              )
-public interface CaseDocumentDownloadClientApi {
-
-    @RequestMapping(method = RequestMethod.GET, value = "/cases/documents/{documentId}")
-    ResponseEntity<Object> getMetadataForDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
-                                     @RequestHeader("ServiceAuthorization") String serviceAuth,
-                                     @PathVariable("documentId") UUID documentId);
+public interface CaseDocumentBinaryDownloadClientApi {
 
     @RequestMapping(method = RequestMethod.GET, value = "cases/documents/{documentId}/binary")
     ResponseEntity<Object> getDocumentBinary(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
