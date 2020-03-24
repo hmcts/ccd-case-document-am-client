@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.ccd.document.am.healthcheck.CaseDocumentManagementHea
 
 
 @Configuration
-@ConditionalOnProperty(prefix = "case_document_management", name = "url")
+@ConditionalOnProperty(prefix = "case_document_am", name = "url")
 @EnableFeignClients(basePackages = "uk.gov.hmcts.reform.ccd.document.am")
 public class CaseDocumentManagementClientAutoConfiguration {
 
