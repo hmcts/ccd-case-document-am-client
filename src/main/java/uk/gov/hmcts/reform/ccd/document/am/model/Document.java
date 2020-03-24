@@ -14,7 +14,7 @@ import java.util.Map;
 
 
 /**
- * StoredDocumentHalResource.
+ * Document.
  */
 @Data
 @NoArgsConstructor
