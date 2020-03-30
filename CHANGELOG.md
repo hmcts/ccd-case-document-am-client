@@ -1,3 +1,7 @@
+## [0.1.41](https://github.com/hmcts/ccd-case-document-am-client/compare/0.1.40...0.1.41) (2020-03-30)
+
+
+
 ## [0.1.40](https://github.com/hmcts/ccd-case-document-am-client/compare/0.1.39...0.1.40) (2020-03-30)
 
 
