@@ -14,7 +14,6 @@ deploy:
   script: ./gradlew bintrayUpload
   skip_cleanup: true
   edge: true
-  file_glob: true
   on:
     tags: true
 - provider: releases
