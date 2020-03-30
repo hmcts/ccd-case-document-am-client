@@ -12,7 +12,7 @@ cache:
 
 deploy:
 - provider: script
-  script: ./gradlew bintrayUpload
+  script: ./gradlew build,./gradlew bintrayUpload
   skip_cleanup: true
   edge: true
   on:
