@@ -7,15 +7,23 @@ before_cache:
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-  - "$HOME/.gradle/caches/"
-  - "$HOME/.gradle/wrapper/"
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
 deploy:
-  provider: releases
+- provider: script
+  script: ./gradlew bintrayUpload
+  skip_cleanup: true
+  on:
+    tags: true
+- provider: releases
   api_key:
     secure: Nbar+vfWYfsJnsbvAWAucAwN1fAVjzfnfggxp+0Mgo7ftpdGrhb/q7YHA6DYFjgGEC7HDCWwXHXfMVmKy8eaEqL/0fl5zxCcCEUuw73VxTh1XttTWZ5/IGcAdJcfttjbxMkwsWgRQUYg/NeZq8yHg/XmAvFkKPM/HXhvP4xGewW9ZZgk+Y/pm6D91kgnIKTDbIo8Z4vU/AJuAQggOU6MIRXNsmMiM/b2m0vlDpHO1SF+SQQXVsjJR/gh/IYL5xk8PCNUG6Tofsnlc1Zry9/YimP5NZROhnAZbh/sXPK7uefdkMkD7mVwXU9Ld+4LxEQ3pBb394zuDt4qGM45DntmdeaGFtbe874ypL7ONDeo/9wYZtUbpfpSPeJNmqkVgKAWSUsc7/OYb9W+kcYP2gf1SWn3mDJkP6MPct20GxvlHusr//pB5wvwOcZFvYkEZbwJ98ZGdbwsgTccKRpIp4XeN9eUGuY2Lf9eFMzbI6KmKSqp145PQwW99FQqmQqRPOMjZo4jS6G9NkR1YTQa1nEdwBFupaccEf77wTbpw4xCzEkZEJkLNoe2A4KbAg6CaNpBD3J91hRm9OcBVb4P7+7ReeJ+347SEZJcbyRODdG6865IcAZcgXyQIQlw/o45PbNYL4kHsGwNaSWC5UCs1BWwQ0f7jgH1OKXjJBtJ04AuAVU=
+  file_glob: true
+  edge: true
   file: build/libs/ccd-case-document-am-client-*.jar
+  skip_cleanup: true
   on:
-    repo: hmcts/ccd-case-document-am-client
+    tags: true
 env:
   global:
     secure: E9hqxenq8Xz/GFPZWwz6vuXNSNwkyZsnjlnJTAYouh3AnRBZcHZueS2oslSUPQisOrCEz6K1QS4hjp0qlE+01MeW/1dsrx5YdJe8L5ZcDeJSZL6CLSEl56hss500NKUnT3lVYLOFXVjNUxv245TMfiuw8R4x8NHjJjFj65/CL7zxQ2rF29KS5PoH86dnKRiyzKGSWKV4LQoqaoEBj2H4BBQK1TQGhJC4nL9WCoGL0rNhv/jKnQBf1LtZd+fF+MlYcUn+btocVPV7ybJfjGyDGjreAqgHhyA/NDLcmXi6P1Uzruq/ODjw5YIJbZsch0mxlMGk2I+UFh7k/Mw2JEd7PYNaundws9sGW5JdUmIN4kWTDMq8WHoeW2Znf8vrkW3Xl+uU3JJE78V4Xw+l4NgHMiqjSRdlQL+eFPF7JajP4TaIG/Zx4iP91SuqbtQZw4O8e9g+93MjfG0CITfVTaaYPCp/cX7SH8hTd6haAI8Pwk0yC+EpJpjuR2nAGSnK8jGNa/6NBA2rgmf7Hb1dKfhf6cIYsjJE4kchs7f+kfBxuFmiggGWRYLt7Wkpvl8UR34BtWcd7L/SjuKpGNHbPZOKBk9Mgm3kNs9s+wo0lnLpzN2JFYAJUPhtzJqDR3RZAPlGf1/Wo9PrxtYc2VfnD+5pzMazLJe+w1cJMP8IstXnLhA=
