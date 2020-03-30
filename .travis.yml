@@ -9,6 +9,8 @@ cache:
   directories:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
+script:
+  - cd ccd-case-document-am-client && ./gradlew build
 deploy:
 - provider: script
   script: ./gradlew bintrayUpload
