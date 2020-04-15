@@ -16,7 +16,7 @@ import java.util.List;
     url = "${case_document_am.url}")
 public interface CaseDocumentUploadClientApi {
 
-    @RequestMapping(method = RequestMethod.POST, value = "cases/documents")
+    @RequestMapping(method = RequestMethod.POST, value = "/cases/documents")
     ResponseEntity<Resource> uploadDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
                                             @RequestHeader("ServiceAuthorization") String serviceAuth,
                                             @PathVariable("files") List<MultipartFile> files,
