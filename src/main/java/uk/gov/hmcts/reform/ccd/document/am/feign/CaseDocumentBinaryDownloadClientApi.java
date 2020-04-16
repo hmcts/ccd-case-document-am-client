@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.UUID;
 
-@FeignClient(name = "case-document-am-download-api",
+@FeignClient(name = "case-document-am-download-client-api",
     url = "${case_document_am.url}"
 )
 public interface CaseDocumentBinaryDownloadClientApi {
