@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
-@FeignClient(name = "case-document-am-metadata-api", url = "${case_document_am.url}",
+@FeignClient(name = "case-document-am-metadata-client-api", url = "${case_document_am.url}",
     configuration = CaseDocumentMetadataDownloadClientApi.DownloadConfiguration.class)
 public interface CaseDocumentMetadataDownloadClientApi {
 

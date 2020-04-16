@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@FeignClient(name = "case-document-am-upload-api",
+@FeignClient(name = "case-document-am-upload-client-api",
     url = "${case_document_am.url}")
 public interface CaseDocumentUploadClientApi {
 
