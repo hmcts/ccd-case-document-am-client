@@ -5,6 +5,7 @@ import feign.codec.Decoder;
 import feign.jackson.JacksonDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,7 @@ public interface CaseDocumentMetadataDownloadClientApi {
     )
     InternalHealth health();
 
-
+    @Configuration
     class DownloadConfiguration {
         @Bean
         @Primary
