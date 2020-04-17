@@ -39,7 +39,6 @@ public interface CaseDocumentMetadataDownloadClientApi {
 
     class DownloadConfiguration {
         @Bean
-        @Primary
         Decoder feignDecoder(ObjectMapper objectMapper) {
             return new JacksonDecoder(objectMapper);
         }
