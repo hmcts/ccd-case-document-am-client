@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.UUID;
 
 @FeignClient(name = "case-document-am-delete-client-api", url = "${case_document_am.url}")
-public interface CaseDocumentDeleteApi {
+public interface CaseDocumentDeleteClientApi {
 
     @RequestMapping(method = RequestMethod.DELETE, value = "cases/documents/{documentId}")
     ResponseEntity deleteDocument(
