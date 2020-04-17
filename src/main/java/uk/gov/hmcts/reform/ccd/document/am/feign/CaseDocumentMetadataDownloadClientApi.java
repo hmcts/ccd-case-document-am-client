@@ -37,11 +37,10 @@ public interface CaseDocumentMetadataDownloadClientApi {
     )
     InternalHealth health();
 
-    @Configuration
     class DownloadConfiguration {
-        @Bean(name = "feignDecode")
+        @Bean
         @Primary
-        Decoder feignDecoder(ObjectMapper objectMapper) {
+        Decoder feignDecode(ObjectMapper objectMapper) {
             return new JacksonDecoder(objectMapper);
         }
     }
