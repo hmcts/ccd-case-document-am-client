@@ -28,7 +28,6 @@ public interface CaseDocumentMetadataDownloadClientApi {
                                     @RequestHeader("ServiceAuthorization") String serviceAuth,
                                     @PathVariable("documentId") UUID documentId);
 
-
     @RequestMapping(
         method = RequestMethod.GET,
         value = "/health",

@@ -20,5 +20,4 @@ public interface CaseDocumentBinaryDownloadClientApi {
     ResponseEntity<Resource> getDocumentBinary(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
                                                @RequestHeader("ServiceAuthorization") String serviceAuth,
                                                @PathVariable("documentId") UUID documentId);
-
 }

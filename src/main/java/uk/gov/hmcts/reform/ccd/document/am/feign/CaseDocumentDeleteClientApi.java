@@ -15,11 +15,9 @@ import java.util.UUID;
 public interface CaseDocumentDeleteClientApi {
 
     @RequestMapping(method = RequestMethod.DELETE, value = "cases/documents/{documentId}")
-    ResponseEntity deleteDocument(
-        @RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
-        @RequestHeader("ServiceAuthorization") String serviceAuth,
-        @RequestHeader("user-roles") String userRoles,
-        @PathVariable("documentId") UUID documentId,
-        @RequestParam("permanent") boolean permanent
-    );
+    ResponseEntity deleteDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
+                                  @RequestHeader("ServiceAuthorization") String serviceAuth,
+                                  @RequestHeader("user-roles") String userRoles,
+                                  @PathVariable("documentId") UUID documentId,
+                                  @RequestParam("permanent") boolean permanent);
 }
