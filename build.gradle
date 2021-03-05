@@ -32,6 +32,7 @@ def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?:
 
 group 'uk.gov.hmcts.reform'
 version buildNumber
+
 dependencyUpdates.resolutionStrategy = {
   componentSelection { rules ->
     rules.all { ComponentSelection selection ->
@@ -79,7 +80,6 @@ task printVersion {
     print project.version
   }
 }
-
 
 def pomConfig = {
   licenses {

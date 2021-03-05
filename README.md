@@ -23,6 +23,18 @@ Just include the library as your dependency and you will be ready to use the cli
 
 Components provided by this library will get automatically configured in a Spring context if `ccd_case_ddocument_am_api.url` configuration property is defined and does not equal `false`.
 
+## Configurable Health Check
+To enable/disable the Health Check endpoint made available by this client, you need to set the following property in your `application.properties` or `application.yaml` Spring property file:
+```
+management.health.case-document-am-api.enabled=false
+```
+By setting the value to false, you are disabling the Health Check endpoint exposed by the client.
+
+To enable the endpoint, simply set the value to true:
+```
+management.health.case-document-am-api.enabled=true
+```
+
 ## Building
 
 The project uses [Gradle](https://gradle.org) as a build tool but you don't have install it locally since there is a
