@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.ccd.document.am;
+package uk.gov.hmcts.reform.ccd.document.am.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.EnableFeignClients;

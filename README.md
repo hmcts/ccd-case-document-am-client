@@ -1,5 +1,6 @@
 # ccd-case-document-am-client
 
+[![API v1](https://img.shields.io/badge/API%20Docs-v1-e140ad.svg)](https://hmcts.github.io/reform-api-docs/swagger.html?url=https://hmcts.github.io/reform-api-docs/specs/ccd-case-document-am-api.json)
 [![Build Status](https://travis-ci.com/hmcts/ccd-case-document-am-client.svg?branch=master)](https://travis-ci.com/hmcts/ccd-case-document-am-client)
 [![Download](https://api.bintray.com/packages/hmcts/hmcts-maven/ccd-case-document-am-client/images/download.svg) ](https://bintray.com/hmcts/hmcts-maven/ccd-case-document-am-client/_latestVersion)
 

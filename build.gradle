@@ -25,7 +25,7 @@ apply plugin: 'com.jfrog.bintray'
 def versions = [
     junit       : '5.6.2',
     lombok      : '1.18.8',
-    springCloud : 'Finchley.RELEASE'
+    springCloud : '2020.0.1'
 ]
 
 def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "1.0.0"
