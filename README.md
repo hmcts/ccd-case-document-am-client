@@ -1,6 +1,5 @@
 # ccd-case-document-am-client
 
-[![API v1](https://img.shields.io/badge/API%20Docs-v1-e140ad.svg)](https://hmcts.github.io/reform-api-docs/swagger.html?url=https://hmcts.github.io/reform-api-docs/specs/document-management-store-app.json)
 [![Build Status](https://travis-ci.com/hmcts/ccd-case-document-am-client.svg?branch=master)](https://travis-ci.com/hmcts/ccd-case-document-am-client)
 [![Download](https://api.bintray.com/packages/hmcts/hmcts-maven/ccd-case-document-am-client/images/download.svg) ](https://bintray.com/hmcts/hmcts-maven/ccd-case-document-am-client/_latestVersion)
 
@@ -21,7 +20,7 @@ The API Documentation provided at the top of this README point to the Swagger do
 
 Just include the library as your dependency and you will be ready to use the client class. Health check for case-document-am-api is provided as well.
 
-Components provided by this library will get automatically configured in a Spring context if `ccd_case_ddocument_am_api.url` configuration property is defined and does not equal `false`.
+Components provided by this library will get automatically configured in a Spring context if `ccd_case_document_am_api.url` configuration property is defined and does not equal `false`.
 
 ## Configurable Health Check
 To enable/disable the Health Check endpoint made available by this client, you need to set the following property in your `application.properties` or `application.yaml` Spring property file:
