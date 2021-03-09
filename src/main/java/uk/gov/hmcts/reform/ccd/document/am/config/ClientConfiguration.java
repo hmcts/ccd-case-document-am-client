@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class ClientConfiguration {
+
     @Bean
     @Primary
     Decoder feignDecode(ObjectMapper objectMapper) {
