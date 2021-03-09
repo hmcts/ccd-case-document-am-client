@@ -1,10 +1,10 @@
-package uk.gov.hmcts.reform.ccd.document.am;
+package uk.gov.hmcts.reform.ccd.document.am.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentMetadataDownloadClientApi;
+import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentHealthClientApi;
 import uk.gov.hmcts.reform.ccd.document.am.healthcheck.CaseDocumentManagementHealthIndicator;
 
 
@@ -15,8 +15,8 @@ public class CaseDocumentManagementClientAutoConfiguration {
 
     @Bean
     public CaseDocumentManagementHealthIndicator documentManagement(
-        CaseDocumentMetadataDownloadClientApi caseDocumentMetadataDownloadClientApi
+        CaseDocumentHealthClientApi caseDocumentHealthClientApi
     ) {
-        return new CaseDocumentManagementHealthIndicator(caseDocumentMetadataDownloadClientApi);
+        return new CaseDocumentManagementHealthIndicator(caseDocumentHealthClientApi);
     }
 }

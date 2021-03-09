@@ -27,10 +27,8 @@ public class Document {
     @JsonProperty("_links")
     public Links links;
 
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Links {
-
         public Link self;
         public Link binary;
     }
@@ -39,5 +37,4 @@ public class Document {
     public static class Link {
         public String href;
     }
-
 }

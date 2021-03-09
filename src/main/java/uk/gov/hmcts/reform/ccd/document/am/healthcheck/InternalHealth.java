@@ -9,9 +9,7 @@ public class InternalHealth {
     private final Status status;
 
     @JsonCreator
-    public InternalHealth(
-        String status
-    ) {
+    public InternalHealth(String status) {
         this.status = new Status(status);
     }
 
