@@ -22,7 +22,7 @@ public interface CaseDocumentClientApi {
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     String DOCUMENT_ID = "documentId";
 
-    @PostMapping(value = "")
+    @PostMapping
     ResponseEntity uploadDocuments(@RequestParam(value = "files") List<MultipartFile> files,
                                    @RequestParam(value = "classification") String classification,
                                    @RequestParam(value = "caseTypeId") String caseTypeId,
