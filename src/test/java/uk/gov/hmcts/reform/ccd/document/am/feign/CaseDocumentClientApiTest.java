@@ -24,12 +24,10 @@ import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.DataTruncation;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,14 +46,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @AutoConfigureWireMock(port = 5050)
 class CaseDocumentClientApiTest {
 
-    public static final UUID DOCUMENT_ID = UUID.randomUUID();
+    private static final UUID DOCUMENT_ID = UUID.randomUUID();
 
-    public static final String URL = "/cases/documents";
+    private static final String URL = "/cases/documents";
 
-    public static final String CLASSIFICATION = "classification";
-    public static final String CASE_TYPE_ID = "CaseTypeID";
+    private static final String CLASSIFICATION = "classification";
+    private static final String CASE_TYPE_ID = "CaseTypeID";
 
-    public static final boolean PERMANENT = false;
+    private static final String SERVICE_AUTHORISATION_KEY = "ServiceAuthorization";
+    private static final String BEARER = "Bearer";
+    private static final String TOKEN = "user1";
+
+    private static final boolean PERMANENT = false;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -89,9 +91,9 @@ class CaseDocumentClientApiTest {
 
         ResponseEntity finalResponse = caseDocumentClientApi.uploadDocuments(
             files,
-            "classification",
-            "CaseTypeID",
-            "Bearer user1"
+            CLASSIFICATION,
+            CASE_TYPE_ID,
+            BEARER + TOKEN
         );
 
         assertEquals(HttpStatus.OK, finalResponse.getStatusCode());
@@ -111,15 +113,14 @@ class CaseDocumentClientApiTest {
 
         ResponseEntity finalResponse = caseDocumentClientApi.uploadDocuments(
             files,
-            "classification",
-            "CaseTypeID",
-            "Bearer user1"
+            CLASSIFICATION,
+            CASE_TYPE_ID,
+            BEARER + TOKEN
         );
 
         System.out.println(finalResponse.getBody());
 
         assertEquals(HttpStatus.OK, finalResponse.getStatusCode());
-        //assertEquals(3, finalResponse.getBody());
     }
 
     @Test
@@ -129,8 +130,8 @@ class CaseDocumentClientApiTest {
         stubForDocumentBinary(response);
 
         ResponseEntity finalResponse = caseDocumentClientApi.getDocumentBinary(
-            "user1",
-            "Bearer user1",
+            TOKEN,
+            BEARER + TOKEN,
             DOCUMENT_ID
         );
 
@@ -147,8 +148,8 @@ class CaseDocumentClientApiTest {
         stubForDocumentMetaData(response);
 
         Document finalResponse = caseDocumentClientApi.getMetadataForDocument(
-            "user1",
-            "Bearer user1",
+            TOKEN,
+            BEARER + TOKEN,
             DOCUMENT_ID
         );
 
@@ -165,8 +166,8 @@ class CaseDocumentClientApiTest {
         stubForDeleteDocument(response);
 
         ResponseEntity finalResponse = caseDocumentClientApi.deleteDocument(
-            "user1",
-            "Bearer user1",
+            TOKEN,
+            BEARER + TOKEN,
             "user-roles",
             DOCUMENT_ID,
             PERMANENT
@@ -185,8 +186,8 @@ class CaseDocumentClientApiTest {
         stubForPatch(request, response);
 
         DocumentTTLResponse finalResponse = caseDocumentClientApi.patchDocument(
-            "user1",
-            "Bearer user1",
+            TOKEN,
+            BEARER + TOKEN,
             DOCUMENT_ID,
             request
         );
@@ -196,7 +197,7 @@ class CaseDocumentClientApiTest {
 
     private void stubForUpload(ResponseEntity response) throws JsonProcessingException {
         stubFor(WireMock.post(WireMock.urlPathEqualTo(URL))
-                    .withHeader("ServiceAuthorization", equalTo("Bearer user1"))
+                    .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(BEARER + TOKEN))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -209,8 +210,8 @@ class CaseDocumentClientApiTest {
         stubFor(WireMock.get(WireMock.urlMatching(URL
                                                       + "/" + DOCUMENT_ID
                                                       + "/binary"))
-                    .withHeader("ServiceAuthorization", equalTo("Bearer user1"))
-                    .withHeader(AUTHORIZATION, equalTo("user1"))
+                    .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(BEARER + TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -222,8 +223,8 @@ class CaseDocumentClientApiTest {
     private void stubForDocumentMetaData(Document response) throws JsonProcessingException {
         stubFor(WireMock.get(WireMock.urlMatching(URL
                                                       + "/" + DOCUMENT_ID))
-                    .withHeader("ServiceAuthorization", equalTo("Bearer user1"))
-                    .withHeader(AUTHORIZATION, equalTo("user1"))
+                    .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(BEARER + TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -236,8 +237,8 @@ class CaseDocumentClientApiTest {
         stubFor(WireMock.delete(WireMock.urlMatching(URL
                                                          + "/" + DOCUMENT_ID
                                                          + "\\?permanent=" + PERMANENT))
-                    .withHeader("ServiceAuthorization", equalTo("Bearer user1"))
-                    .withHeader(AUTHORIZATION, equalTo("user1"))
+                    .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(BEARER + TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -250,8 +251,8 @@ class CaseDocumentClientApiTest {
         throws JsonProcessingException {
         stubFor(WireMock.patch(WireMock.urlMatching(URL
                                                         + "/" + DOCUMENT_ID))
-                    .withHeader(AUTHORIZATION, equalTo("user1"))
-                    .withHeader("ServiceAuthorization", equalTo("Bearer user1"))
+                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(BEARER + TOKEN))
                     .withRequestBody(equalToJson(objectMapper.writeValueAsString(request)))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())

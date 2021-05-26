@@ -9,13 +9,14 @@ This is a client library for interacting with the ccd-case-document-am-api appli
  - download the case document
  - update the case document
  - delete the case document
+ - patch the case document
 
 The API Documentation provided at the top of this README point to the Swagger documentation for the Case Document API.
 ## Getting started
 
 ### Prerequisites
 
-- [JDK 8](https://www.oracle.com/java)
+- [JDK 11](https://www.oracle.com/java)
 
 ## Usage
 
@@ -55,12 +56,6 @@ To run all checks (including unit tests) please execute the following command:
 ```bash
     ./gradlew check
 ```
-
-## Functional Tests
-
-The functional tests rely on CCD, document-store and Idam and need to be configured with appropriate user roles and events.
-Before running the functional test on a local environment run the following:
-
 
 ## Versioning
 
