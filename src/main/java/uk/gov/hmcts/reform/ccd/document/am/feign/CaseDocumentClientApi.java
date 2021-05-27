@@ -20,7 +20,7 @@ import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(contextId = "exampleID", name = "case-document-am-client-api", url = "${case_document_am.url}/cases/documents")
+@FeignClient(name = "case-document-am-client-api", url = "${case_document_am.url}/cases/documents")
 public interface CaseDocumentClientApi {
 
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";

@@ -2,9 +2,6 @@ buildscript {
   repositories {
     jcenter()
   }
-  dependencies {
-    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
-  }
 }
 
 plugins {
@@ -13,14 +10,12 @@ plugins {
   id 'org.springframework.boot' version '2.4.4'
   id 'uk.gov.hmcts.java' version '0.12.2'
   id 'com.github.ben-manes.versions' version '0.36.0'
-  id "com.jfrog.bintray" version "1.8.5"
 }
 
 apply plugin: 'checkstyle'
 apply plugin: 'java-library'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
 
 def versions = [
     junit       : '5.6.2',
@@ -61,7 +56,7 @@ compileTestJava {
 
 repositories {
   maven {
-    url "https://dl.bintray.com/hmcts/hmcts-maven"
+    url 'https://jitpack.io'
   }
   maven {
     url 'https://repo.spring.io/libs-milestone'
@@ -128,23 +123,6 @@ publishing {
 
         root.children().last() + pomConfig
       }
-    }
-  }
-}
-
-bintray {
-  user = System.getenv('BINTRAY_USER')
-  key = System.getenv('BINTRAY_KEY')
-  publications = ['Main']
-  publish = true
-  pkg {
-    repo = 'hmcts-maven'
-    name = 'ccd-case-document-am-client'
-    userOrg = 'hmcts'
-    licenses = ['MIT']
-    vcsUrl = 'https://github.com/hmcts/ccd-case-document-am-client'
-    version {
-      name = project.version
     }
   }
 }

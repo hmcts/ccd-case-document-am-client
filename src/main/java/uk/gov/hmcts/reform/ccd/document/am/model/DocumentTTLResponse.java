@@ -17,7 +17,7 @@ public class DocumentTTLResponse {
 
     private LocalDateTime ttl;
 
-    public DocumentTTLResponse(LocalDateTime ttl){
+    public DocumentTTLResponse(LocalDateTime ttl) {
         this.ttl = ttl;
     }
 
