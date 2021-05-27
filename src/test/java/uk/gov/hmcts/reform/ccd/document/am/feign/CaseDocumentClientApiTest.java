@@ -264,7 +264,7 @@ class CaseDocumentClientApiTest {
 
 
 
-    private MultipartFile getMultiPartFile(String name){
+    private MultipartFile getMultiPartFile(String name) {
         MultipartFile multipartFile = new MultipartFile() {
             @Override
             public String getName() {
