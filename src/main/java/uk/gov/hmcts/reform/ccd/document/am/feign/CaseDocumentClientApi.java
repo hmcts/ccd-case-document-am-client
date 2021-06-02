@@ -12,13 +12,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
+import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 
-import java.util.List;
 import java.util.UUID;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @FeignClient(name = "case-document-am-client-api", url = "${case_document_am.url}/cases/documents")
 public interface CaseDocumentClientApi {
@@ -26,11 +28,10 @@ public interface CaseDocumentClientApi {
     String SERVICE_AUTHORIZATION = "ServiceAuthorization";
     String DOCUMENT_ID = "documentId";
 
-    @PostMapping
-    ResponseEntity uploadDocuments(@RequestParam(value = "files") List<MultipartFile> files,
-                                   @RequestParam(value = "classification") String classification,
-                                   @RequestParam(value = "caseTypeId") String caseTypeId,
-                                   @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuth);
+    @PostMapping(produces = APPLICATION_JSON_VALUE,  consumes = MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity uploadDocuments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
+                                   @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuth,
+                                   @RequestBody DocumentUploadRequest uploadRequest);
 
     @GetMapping(value = "/{documentId}/binary")
     ResponseEntity<Resource> getDocumentBinary(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
@@ -43,9 +44,8 @@ public interface CaseDocumentClientApi {
                                     @PathVariable(DOCUMENT_ID) UUID documentId);
 
     @DeleteMapping(value = "/{documentId}")
-    ResponseEntity deleteDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
+    void deleteDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
                                   @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuth,
-                                  @RequestHeader("user-roles") String userRoles,
                                   @PathVariable(DOCUMENT_ID) UUID documentId,
                                   @RequestParam("permanent") boolean permanent);
 

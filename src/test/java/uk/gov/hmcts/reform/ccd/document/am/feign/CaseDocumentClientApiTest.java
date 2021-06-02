@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
+import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -28,14 +29,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @SpringBootTest(classes = {CaseDocumentClientApi.class})
 @PropertySource(value = "classpath:application.yml")
@@ -47,17 +53,18 @@ class CaseDocumentClientApiTest {
 
     private static final String URL = "/cases/documents";
 
-    private static final String CLASSIFICATION = "classification";
-    private static final String CASE_TYPE_ID = "CaseTypeID";
-
-    private List<MultipartFile> files;
+    private static final String CLASSIFICATION = "aClassification";
+    private static final String CASE_TYPE_ID = "aCaseTypeId";
+    private static final String JURISDICTION = "aJurisdictionId";
 
     private static final String SERVICE_AUTHORISATION_KEY = "ServiceAuthorization";
     private static final String BEARER = "Bearer ";
     private static final String TOKEN = "user1";
     private static final String SERVICE_AUTHORISATION_VALUE = BEARER + TOKEN;
+    private static final String AUTHORISATION_VALUE = "a Bearer idam token";
 
     private static final boolean PERMANENT = false;
+    public static final String PERMANENT_QUERY_PARAM = "permanent";
 
     private MockMultipartFile multipartFile = new MockMultipartFile("testFile1", "content".getBytes());
 
@@ -70,47 +77,21 @@ class CaseDocumentClientApiTest {
     void setUp() {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        files = new ArrayList<>();
-
     }
 
     @Test
-    void uploadSingleDocumentTest() throws IOException {
+    void shouldUploadDocuments() {
+        List<MultipartFile> files = new ArrayList<>();
         files.add(multipartFile);
 
-        ResponseEntity response = new ResponseEntity(HttpStatus.OK);
+        DocumentUploadRequest request = new DocumentUploadRequest(CLASSIFICATION,
+                                                                  CASE_TYPE_ID, JURISDICTION, files);
+        stubForUpload(request);
 
-        stubForUpload(response);
+        ResponseEntity responseEntity = caseDocumentClientApi.uploadDocuments(
+            AUTHORISATION_VALUE, SERVICE_AUTHORISATION_VALUE, request);
 
-        ResponseEntity finalResponse = caseDocumentClientApi.uploadDocuments(
-            files,
-            CLASSIFICATION,
-            CASE_TYPE_ID,
-            SERVICE_AUTHORISATION_VALUE
-        );
-
-        assertEquals(HttpStatus.OK, finalResponse.getStatusCode());
-    }
-
-    @Test
-    void uploadMultipleDocumentTest() throws IOException {
-        files.add(multipartFile);
-        files.add(multipartFile);
-        files.add(multipartFile);
-
-        ResponseEntity response = new ResponseEntity(HttpStatus.OK);
-
-        stubForUpload(response);
-
-        ResponseEntity finalResponse = caseDocumentClientApi.uploadDocuments(
-            files,
-            CLASSIFICATION,
-            CASE_TYPE_ID,
-            SERVICE_AUTHORISATION_VALUE
-        );
-
-        assertEquals(HttpStatus.OK, finalResponse.getStatusCode());
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
     @Test
@@ -147,20 +128,20 @@ class CaseDocumentClientApiTest {
     }
 
     @Test
-    void deleteDocument() throws IOException {
-        ResponseEntity response = new ResponseEntity(HttpStatus.OK);
+    void shouldDeleteDocument() {
 
-        stubForDeleteDocument(response);
+        stubForDeleteDocument(DOCUMENT_ID, PERMANENT);
 
-        ResponseEntity finalResponse = caseDocumentClientApi.deleteDocument(
+        caseDocumentClientApi.deleteDocument(
             TOKEN,
             SERVICE_AUTHORISATION_VALUE,
-            "user-roles",
             DOCUMENT_ID,
             PERMANENT
         );
 
-        assertEquals(HttpStatus.OK, finalResponse.getStatusCode());
+        WireMock.verify(deleteRequestedFor(
+            urlPathEqualTo(URL + "/" + DOCUMENT_ID))
+               .withQueryParam(PERMANENT_QUERY_PARAM, equalTo(String.valueOf(PERMANENT))));
     }
 
     @Test
@@ -182,13 +163,24 @@ class CaseDocumentClientApiTest {
         assertEquals(finalResponse.getTtl(), localDateTime);
     }
 
-    private void stubForUpload(ResponseEntity response) throws JsonProcessingException {
-        stubFor(WireMock.post(WireMock.urlPathEqualTo(URL))
+    private void stubForUpload(DocumentUploadRequest request) {
+        stubFor(WireMock.post(urlPathEqualTo(URL))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withQueryParam("classification", equalTo(CLASSIFICATION))
-                    .withQueryParam("caseTypeId", equalTo(CASE_TYPE_ID))
-                    .willReturn(aResponse()
-                                    .withStatus(HttpStatus.OK.value())
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
+                    .withHeader(CONTENT_TYPE, containing(MULTIPART_FORM_DATA_VALUE))
+                    .withMultipartRequestBody(
+                        aMultipart()
+                          .withName("jurisdictionId")
+                          .withBody(containing(request.getJurisdictionId())))
+                    .withMultipartRequestBody(
+                        aMultipart()
+                            .withName("caseTypeId")
+                            .withBody(containing(request.getCaseTypeId())))
+                    .withMultipartRequestBody(
+                        aMultipart()
+                            .withName("classification")
+                            .withBody(containing(request.getClassification())))
+                    .willReturn(aResponse().withStatus(HttpStatus.OK.value())
                     )
         );
     }
@@ -220,17 +212,12 @@ class CaseDocumentClientApiTest {
         );
     }
 
-    private void stubForDeleteDocument(ResponseEntity response) throws JsonProcessingException {
-        stubFor(WireMock.delete(WireMock.urlMatching(URL
-                                                         + "/" + DOCUMENT_ID
-                                                         + "\\?permanent=" + PERMANENT))
+    private void stubForDeleteDocument(UUID documentId, boolean permanent) {
+        stubFor(WireMock.delete(urlPathEqualTo(URL + "/" + documentId))
+                    .withQueryParam(PERMANENT_QUERY_PARAM, equalTo(String.valueOf(permanent)))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
                     .withHeader(AUTHORIZATION, equalTo(TOKEN))
-                    .willReturn(aResponse()
-                                    .withStatus(HttpStatus.OK.value())
-                                    .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                                    .withBody(objectMapper.writeValueAsString(response))
-                    )
+                    .willReturn(aResponse().withStatus(HttpStatus.NO_CONTENT.value()))
         );
     }
 
