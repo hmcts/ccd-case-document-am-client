@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,11 +77,12 @@ class CaseDocumentClientApiTest {
     @BeforeEach
     void setUp() {
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new ParameterNamesModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     @Test
-    void shouldUploadDocuments() {
+    void shouldSuccessfullyUploadDocuments() {
         List<MultipartFile> files = new ArrayList<>();
         files.add(multipartFile);
 
@@ -95,7 +97,7 @@ class CaseDocumentClientApiTest {
     }
 
     @Test
-    void getDocumentBinaryTest() throws IOException {
+    void shouldSuccessfullyGetDocumentBinary() throws IOException {
         ResponseEntity response = new ResponseEntity(HttpStatus.OK);
 
         stubForDocumentBinary(response);
@@ -110,7 +112,7 @@ class CaseDocumentClientApiTest {
     }
 
     @Test
-    void getDocumentMetaData() throws IOException {
+    void shouldSuccessfullyGetMetadataForDocument() throws IOException {
         Date createdOn = Date.from(Instant.now());
 
         Document response = new Document();
@@ -128,7 +130,7 @@ class CaseDocumentClientApiTest {
     }
 
     @Test
-    void shouldDeleteDocument() {
+    void shouldSuccessfullyDeleteDocument() {
 
         stubForDeleteDocument(DOCUMENT_ID, PERMANENT);
 
@@ -145,11 +147,11 @@ class CaseDocumentClientApiTest {
     }
 
     @Test
-    void patchDocumentTest() throws IOException {
+    void shouldSuccessfullyPatchDocument() throws IOException {
         LocalDateTime localDateTime = LocalDateTime.now();
 
         DocumentTTLRequest request = new DocumentTTLRequest(localDateTime);
-        DocumentTTLResponse response = new DocumentTTLResponse(localDateTime);
+        DocumentTTLResponse response = new DocumentTTLResponse(null, null, localDateTime);
 
         stubForPatch(request, response);
 

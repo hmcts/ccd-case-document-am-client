@@ -125,6 +125,8 @@ dependencyManagement {
 }
 
 dependencies {
+  implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names'
+
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.1'
