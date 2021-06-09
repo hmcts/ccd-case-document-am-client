@@ -247,14 +247,14 @@ class CaseDocumentClientApiTest {
         );
     }
 
-    private Document createDocument(){
-        Date date = Date.from(Instant.now());
-
+    private Document createDocument() {
         Document.Links links = new Document.Links();
         links.self = new Document.Link();
         links.self.href = "link:1000";
         links.binary = new Document.Link();
         links.binary.href = "link:1000/binary";
+
+        Date date = Date.from(Instant.now());
 
         return Document.builder()
             .createdOn(date)
