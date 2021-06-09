@@ -2,9 +2,11 @@ package uk.gov.hmcts.reform.ccd.document.am.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
 import java.util.Date;
 
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Document {
 

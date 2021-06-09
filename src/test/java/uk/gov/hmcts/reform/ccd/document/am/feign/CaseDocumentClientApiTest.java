@@ -47,7 +47,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 @SpringBootTest(classes = {CaseDocumentClientApi.class})
 @PropertySource(value = "classpath:application.yml")
 @EnableAutoConfiguration
-@AutoConfigureWireMock(port = 5050)
+@AutoConfigureWireMock(port = 5170)
 class CaseDocumentClientApiTest {
 
     private static final UUID DOCUMENT_ID = UUID.randomUUID();
@@ -113,10 +113,8 @@ class CaseDocumentClientApiTest {
 
     @Test
     void shouldSuccessfullyGetMetadataForDocument() throws IOException {
-        Date createdOn = Date.from(Instant.now());
 
-        Document response = new Document();
-        response.createdOn = createdOn;
+        Document response = createDocument();
 
         stubForDocumentMetaData(response);
 
@@ -127,6 +125,13 @@ class CaseDocumentClientApiTest {
         );
 
         assertEquals(finalResponse.createdOn, response.createdOn);
+        assertEquals(finalResponse.classification, response.classification);
+        assertEquals(finalResponse.createdBy, response.createdBy);
+        assertEquals(finalResponse.modifiedOn, response.modifiedOn);
+        assertEquals(finalResponse.size, response.size);
+        assertEquals(finalResponse.mimeType, response.mimeType);
+        assertEquals(finalResponse.links.self.href, response.links.self.href);
+        assertEquals(finalResponse.links.binary.href, response.links.binary.href);
     }
 
     @Test
@@ -148,10 +153,12 @@ class CaseDocumentClientApiTest {
 
     @Test
     void shouldSuccessfullyPatchDocument() throws IOException {
-        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalDateTime createdOn = LocalDateTime.now().plusDays(1);
+        LocalDateTime modifiedOn = LocalDateTime.now().plusDays(2);
+        LocalDateTime ttl = LocalDateTime.now();
 
-        DocumentTTLRequest request = new DocumentTTLRequest(localDateTime);
-        DocumentTTLResponse response = new DocumentTTLResponse(null, null, localDateTime);
+        DocumentTTLRequest request = new DocumentTTLRequest(ttl);
+        DocumentTTLResponse response = new DocumentTTLResponse(createdOn, modifiedOn, ttl);
 
         stubForPatch(request, response);
 
@@ -162,7 +169,9 @@ class CaseDocumentClientApiTest {
             request
         );
 
-        assertEquals(finalResponse.getTtl(), localDateTime);
+        assertEquals(finalResponse.getCreatedOn(), createdOn);
+        assertEquals(finalResponse.getModifiedOn(), modifiedOn);
+        assertEquals(finalResponse.getTtl(), ttl);
     }
 
     private void stubForUpload(DocumentUploadRequest request) {
@@ -236,5 +245,24 @@ class CaseDocumentClientApiTest {
                                     .withBody(objectMapper.writeValueAsString(response))
                     )
         );
+    }
+
+    private Document createDocument(){
+        Date date = Date.from(Instant.now());
+
+        Document.Links links = new Document.Links();
+        links.self = new Document.Link();
+        links.self.href = "link:1000";
+        links.binary = new Document.Link();
+        links.binary.href = "link:1000/binary";
+
+        return Document.builder()
+            .createdOn(date)
+            .classification(CLASSIFICATION)
+            .createdBy(TOKEN)
+            .modifiedOn(date)
+            .size(10)
+            .mimeType("mimeType")
+            .links(links).build();
     }
 }
