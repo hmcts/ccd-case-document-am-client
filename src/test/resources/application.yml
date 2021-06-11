@@ -1,4 +1,0 @@
----
-case_document_am:
-    url: 'http://localhost:${wiremock.server.port:5170}'
-
