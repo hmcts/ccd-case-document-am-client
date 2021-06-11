@@ -2,20 +2,21 @@
 
 [![API v1](https://img.shields.io/badge/API%20Docs-v1-e140ad.svg)](https://hmcts.github.io/reform-api-docs/swagger.html?url=https://hmcts.github.io/reform-api-docs/specs/ccd-case-document-am-api.json)
 [![Build Status](https://travis-ci.com/hmcts/ccd-case-document-am-client.svg?branch=master)](https://travis-ci.com/hmcts/ccd-case-document-am-client)
-[![Download](https://api.bintray.com/packages/hmcts/hmcts-maven/ccd-case-document-am-client/images/download.svg) ](https://bintray.com/hmcts/hmcts-maven/ccd-case-document-am-client/_latestVersion)
+[![Release](https://jitpack.io/v/hmcts/ccd-case-document-am-client.svg)](https://jitpack.io/#hmcts/ccd-case-document-am-client)
 
 This is a client library for interacting with the ccd-case-document-am-api application. The two main responsibilities are:
  - upload the case document
  - download the case document
  - update the case document
  - delete the case document
+ - patch the case document
 
 The API Documentation provided at the top of this README point to the Swagger documentation for the Case Document API.
 ## Getting started
 
 ### Prerequisites
 
-- [JDK 8](https://www.oracle.com/java)
+- [JDK 11](https://www.oracle.com/java)
 
 ## Usage
 
@@ -55,12 +56,6 @@ To run all checks (including unit tests) please execute the following command:
 ```bash
     ./gradlew check
 ```
-
-## Functional Tests
-
-The functional tests rely on CCD, document-store and Idam and need to be configured with appropriate user roles and events.
-Before running the functional test on a local environment run the following:
-
 
 ## Versioning
 
