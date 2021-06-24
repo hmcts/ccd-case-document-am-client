@@ -16,16 +16,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.web.multipart.MultipartFile;
+import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
+import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +38,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -54,22 +55,24 @@ class CaseDocumentClientApiTest {
 
     private static final String URL = "/cases/documents";
 
-    private static final String CLASSIFICATION = "aClassification";
+    private static final Classification PUBLIC = Classification.PUBLIC;
     private static final String CASE_TYPE_ID = "aCaseTypeId";
     private static final String JURISDICTION = "aJurisdictionId";
 
     private static final String SERVICE_AUTHORISATION_KEY = "ServiceAuthorization";
-    private static final String BEARER = "Bearer ";
-    private static final String TOKEN = "user1";
-    private static final String SERVICE_AUTHORISATION_VALUE = BEARER + TOKEN;
+    private static final String SERVICE_AUTHORISATION_VALUE = "a Bearer s2s token";
     private static final String AUTHORISATION_VALUE = "a Bearer idam token";
 
     private static final boolean PERMANENT = false;
-    public static final String PERMANENT_QUERY_PARAM = "permanent";
 
-    private MockMultipartFile multipartFile = new MockMultipartFile("testFile1", "content".getBytes());
+    private static final String PERMANENT_QUERY_PARAM = "permanent";
+    public static final String HASH_TOKEN = "aHashToken";
+    public static final String MIME_TYPE = "application/octet-stream";
+    public static final String ORIGINAL_DOCUMENT_NAME = "test.png";
+    public static final String SELF_VALUE = "self_value";
+    public static final String BINARY_VALUE = "binary_value";
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private CaseDocumentClientApi caseDocumentClientApi;
@@ -82,18 +85,51 @@ class CaseDocumentClientApiTest {
     }
 
     @Test
-    void shouldSuccessfullyUploadDocuments() {
-        List<MultipartFile> files = new ArrayList<>();
-        files.add(multipartFile);
+    void shouldSuccessfullyUploadDocuments() throws JsonProcessingException {
+        MockMultipartFile multipartFile = new MockMultipartFile("file1", "test.png", "application/octet-stream",
+                                                                "someBytes".getBytes());
 
-        DocumentUploadRequest request = new DocumentUploadRequest(CLASSIFICATION,
-                                                                  CASE_TYPE_ID, JURISDICTION, files);
-        stubForUpload(request);
+        DocumentUploadRequest request = new DocumentUploadRequest(PUBLIC.name(),
 
-        ResponseEntity responseEntity = caseDocumentClientApi.uploadDocuments(
+                                                                  CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
+        Date ttl = new Date();
+
+        Document.Links links = getLinks();
+
+        Document mockDocument = Document.builder()
+            .classification(PUBLIC)
+            .hashToken(HASH_TOKEN)
+            .mimeType(MIME_TYPE)
+            .size(1000)
+            .originalDocumentName(ORIGINAL_DOCUMENT_NAME)
+            .ttl(ttl)
+            .links(links)
+            .build();
+
+        UploadResponse mockResponse = new UploadResponse(List.of(mockDocument));
+
+        stubForUpload(request, mockResponse);
+
+        UploadResponse uploadResponse = caseDocumentClientApi.uploadDocuments(
             AUTHORISATION_VALUE, SERVICE_AUTHORISATION_VALUE, request);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        List<Document> documents = uploadResponse.getDocuments();
+
+        assertThat(documents)
+                .hasSize(1)
+                .first()
+                .satisfies(document -> {
+                    assertThat(document.classification).isEqualTo(Classification.PUBLIC);
+                    assertThat(document.size).isEqualTo(1000);
+                    assertThat(document.mimeType).isEqualTo(MIME_TYPE);
+                    assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
+                    assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
+                    assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
+                    assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
+                    assertThat(document.ttl).isEqualTo(ttl);
+                }
+            );
+
     }
 
     @Test
@@ -103,7 +139,7 @@ class CaseDocumentClientApiTest {
         stubForDocumentBinary(response);
 
         ResponseEntity finalResponse = caseDocumentClientApi.getDocumentBinary(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID
         );
@@ -119,15 +155,13 @@ class CaseDocumentClientApiTest {
         stubForDocumentMetaData(response);
 
         Document finalResponse = caseDocumentClientApi.getMetadataForDocument(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID
         );
 
         assertEquals(finalResponse.createdOn, response.createdOn);
         assertEquals(finalResponse.classification, response.classification);
-        assertEquals(finalResponse.createdBy, response.createdBy);
-        assertEquals(finalResponse.modifiedOn, response.modifiedOn);
         assertEquals(finalResponse.size, response.size);
         assertEquals(finalResponse.mimeType, response.mimeType);
         assertEquals(finalResponse.links.self.href, response.links.self.href);
@@ -140,7 +174,7 @@ class CaseDocumentClientApiTest {
         stubForDeleteDocument(DOCUMENT_ID, PERMANENT);
 
         caseDocumentClientApi.deleteDocument(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID,
             PERMANENT
@@ -163,7 +197,7 @@ class CaseDocumentClientApiTest {
         stubForPatch(request, response);
 
         DocumentTTLResponse finalResponse = caseDocumentClientApi.patchDocument(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID,
             request
@@ -174,7 +208,8 @@ class CaseDocumentClientApiTest {
         assertEquals(finalResponse.getTtl(), ttl);
     }
 
-    private void stubForUpload(DocumentUploadRequest request) {
+    private void stubForUpload(DocumentUploadRequest request, UploadResponse mockResponse)
+        throws JsonProcessingException {
         stubFor(WireMock.post(urlPathEqualTo(URL))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
                     .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
@@ -191,7 +226,10 @@ class CaseDocumentClientApiTest {
                         aMultipart()
                             .withName("classification")
                             .withBody(containing(request.getClassification())))
-                    .willReturn(aResponse().withStatus(HttpStatus.OK.value())
+                    .willReturn(aResponse()
+                                    .withStatus(HttpStatus.OK.value())
+                                    .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                                    .withBody(objectMapper.writeValueAsString(mockResponse))
                     )
         );
     }
@@ -201,7 +239,7 @@ class CaseDocumentClientApiTest {
                                                       + "/" + DOCUMENT_ID
                                                       + "/binary"))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -214,7 +252,7 @@ class CaseDocumentClientApiTest {
         stubFor(WireMock.get(WireMock.urlMatching(URL
                                                       + "/" + DOCUMENT_ID))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -227,7 +265,7 @@ class CaseDocumentClientApiTest {
         stubFor(WireMock.delete(urlPathEqualTo(URL + "/" + documentId))
                     .withQueryParam(PERMANENT_QUERY_PARAM, equalTo(String.valueOf(permanent)))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .willReturn(aResponse().withStatus(HttpStatus.NO_CONTENT.value()))
         );
     }
@@ -236,7 +274,7 @@ class CaseDocumentClientApiTest {
         throws JsonProcessingException {
         stubFor(WireMock.patch(WireMock.urlMatching(URL
                                                         + "/" + DOCUMENT_ID))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
                     .withRequestBody(equalToJson(objectMapper.writeValueAsString(request)))
                     .willReturn(aResponse()
@@ -258,11 +296,23 @@ class CaseDocumentClientApiTest {
 
         return Document.builder()
             .createdOn(date)
-            .classification(CLASSIFICATION)
-            .createdBy(TOKEN)
-            .modifiedOn(date)
+            .classification(Classification.PUBLIC)
             .size(10)
             .mimeType("mimeType")
             .links(links).build();
     }
+
+    private Document.Links getLinks() {
+
+        Document.Links links = new Document.Links();
+        Document.Link self = new Document.Link();
+        self.href = SELF_VALUE;
+        Document.Link binary = new Document.Link();
+        binary.href = BINARY_VALUE;
+        links.self = self;
+        links.binary = binary;
+
+        return links;
+    }
+
 }

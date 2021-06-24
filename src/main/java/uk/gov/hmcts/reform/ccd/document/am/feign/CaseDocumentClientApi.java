@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
+import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ public interface CaseDocumentClientApi {
     String DOCUMENT_ID = "documentId";
 
     @PostMapping(produces = APPLICATION_JSON_VALUE,  consumes = MULTIPART_FORM_DATA_VALUE)
-    ResponseEntity uploadDocuments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
+    UploadResponse uploadDocuments(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
                                    @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuth,
                                    @RequestBody DocumentUploadRequest uploadRequest);
 
