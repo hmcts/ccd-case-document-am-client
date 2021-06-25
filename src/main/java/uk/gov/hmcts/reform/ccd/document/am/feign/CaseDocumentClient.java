@@ -44,14 +44,14 @@ public class CaseDocumentClient {
                                            List<MultipartFile> files,
                                            Classification classification) {
 
-        List<HttpEntity<Resource>> httpResourceFiles = transformMultiPartToResourceFiles(files);
+//        List<HttpEntity<Resource>> httpResourceFiles = transformMultiPartToResourceFiles(files);
 
 
 
         DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(classification.toString(),
                                                                                 caseTypeId,
                                                                                 jurisdictionId,
-                                                                                httpResourceFiles);
+                                                                                files);
 
         return caseDocumentClientApi.uploadDocuments(authorisation, serviceAuth, documentUploadRequest);
     }

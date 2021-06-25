@@ -102,11 +102,11 @@ public class CaseDocumentClientTest {
                                                                 "application/octet-stream",
                                                                 "someBytes".getBytes());
 
-        List<HttpEntity<Resource>> resourceFiles =
-            List.of(multipartFile).stream().map(CaseDocumentClient::buildPartFromFile).collect(Collectors.toList());
+//        List<HttpEntity<Resource>> resourceFiles =
+//            List.of(multipartFile).stream().map(CaseDocumentClient::buildPartFromFile).collect(Collectors.toList());
 
         DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
-                                                                  CASE_TYPE_ID, JURISDICTION, resourceFiles);
+                                                                  CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
 
         Date ttl = new Date();
 
