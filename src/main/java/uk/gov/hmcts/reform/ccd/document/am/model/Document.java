@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 
 import java.util.Date;
+import java.util.Map;
 
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Document {
 
-    public String classification;
+    public Classification classification;
 
     public long size;
 
@@ -18,13 +19,13 @@ public class Document {
 
     public String originalDocumentName;
 
-    public String createdBy;
-
-    String lastModifiedBy;
-
-    public Date modifiedOn;
-
     public Date createdOn;
+
+    public Date ttl;
+
+    public String hashToken;
+
+    public Map<String, String> metadata;
 
     @JsonProperty("_links")
     public Links links;
