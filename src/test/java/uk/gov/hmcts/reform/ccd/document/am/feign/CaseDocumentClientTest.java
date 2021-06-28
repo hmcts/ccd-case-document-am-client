@@ -98,9 +98,6 @@ public class CaseDocumentClientTest {
                                                                 "application/octet-stream",
                                                                 "someBytes".getBytes());
 
-//        List<HttpEntity<Resource>> resourceFiles =
-//            List.of(multipartFile).stream().map(CaseDocumentClient::buildPartFromFile).collect(Collectors.toList());
-
         DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
                                                                   CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
 
@@ -131,15 +128,15 @@ public class CaseDocumentClientTest {
             .hasSize(1)
             .first()
             .satisfies(document -> {
-                           assertThat(document.classification).isEqualTo(Classification.PUBLIC);
-                           assertThat(document.size).isEqualTo(1000);
-                           assertThat(document.mimeType).isEqualTo(MIME_TYPE);
-                           assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
-                           assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
-                           assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
-                           assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
-                           assertThat(document.ttl).isEqualTo(ttl);
-                       }
+                        assertThat(document.classification).isEqualTo(Classification.PUBLIC);
+                        assertThat(document.size).isEqualTo(1000);
+                        assertThat(document.mimeType).isEqualTo(MIME_TYPE);
+                        assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
+                        assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
+                        assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
+                        assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
+                        assertThat(document.ttl).isEqualTo(ttl);
+                    }
             );
     }
 
