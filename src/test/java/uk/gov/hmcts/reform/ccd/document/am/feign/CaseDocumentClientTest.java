@@ -61,11 +61,7 @@ public class CaseDocumentClientTest {
     private static final String JURISDICTION = "aJurisdictionId";
 
     private static final String SERVICE_AUTHORISATION_KEY = "ServiceAuthorization";
-
-    private static final String BEARER = "Bearer ";
-    private static final String TOKEN = "user1";
-    private static final String SERVICE_AUTHORISATION_VALUE = BEARER + TOKEN;
-
+    private static final String SERVICE_AUTHORISATION_VALUE = "a Bearer s2s token";
     private static final String AUTHORISATION_VALUE = "a Bearer idam token";
 
     private static final boolean PERMANENT = false;
@@ -146,7 +142,7 @@ public class CaseDocumentClientTest {
         stubForDocumentBinary(response);
 
         ResponseEntity finalResponse = caseDocumentClient.getDocumentBinary(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID
         );
@@ -162,7 +158,7 @@ public class CaseDocumentClientTest {
         stubForDocumentMetaData(response);
 
         Document finalResponse = caseDocumentClient.getMetadataForDocument(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID
         );
@@ -181,7 +177,7 @@ public class CaseDocumentClientTest {
         stubForDeleteDocument(DOCUMENT_ID, PERMANENT);
 
         caseDocumentClient.deleteDocument(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID,
             PERMANENT
@@ -204,7 +200,7 @@ public class CaseDocumentClientTest {
         stubForPatch(request, response);
 
         DocumentTTLResponse finalResponse = caseDocumentClient.patchDocument(
-            TOKEN,
+            AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID,
             request
@@ -246,7 +242,7 @@ public class CaseDocumentClientTest {
                                                       + "/" + DOCUMENT_ID
                                                       + "/binary"))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -259,7 +255,7 @@ public class CaseDocumentClientTest {
         stubFor(WireMock.get(WireMock.urlMatching(URL
                                                       + "/" + DOCUMENT_ID))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -272,7 +268,7 @@ public class CaseDocumentClientTest {
         stubFor(WireMock.delete(urlPathEqualTo(URL + "/" + documentId))
                     .withQueryParam(PERMANENT_QUERY_PARAM, equalTo(String.valueOf(permanent)))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .willReturn(aResponse().withStatus(HttpStatus.NO_CONTENT.value()))
         );
     }
@@ -281,7 +277,7 @@ public class CaseDocumentClientTest {
         throws JsonProcessingException {
         stubFor(WireMock.patch(WireMock.urlMatching(URL
                                                         + "/" + DOCUMENT_ID))
-                    .withHeader(AUTHORIZATION, equalTo(TOKEN))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
                     .withRequestBody(equalToJson(objectMapper.writeValueAsString(request)))
                     .willReturn(aResponse()
