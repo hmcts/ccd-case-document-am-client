@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -31,7 +29,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -60,7 +57,6 @@ public class CaseDocumentClientTest {
 
     private static final String URL = "/cases/documents";
 
-    private static final String CLASSIFICATION = "aClassification";
     private static final String CASE_TYPE_ID = "aCaseTypeId";
     private static final String JURISDICTION = "aJurisdictionId";
 
@@ -73,8 +69,8 @@ public class CaseDocumentClientTest {
     private static final String AUTHORISATION_VALUE = "a Bearer idam token";
 
     private static final boolean PERMANENT = false;
-    public static final String PERMANENT_QUERY_PARAM = "permanent";
 
+    private static final String PERMANENT_QUERY_PARAM = "permanent";
     public static final String HASH_TOKEN = "aHashToken";
     public static final String MIME_TYPE = "application/octet-stream";
     public static final String ORIGINAL_DOCUMENT_NAME = "test.png";
@@ -317,7 +313,6 @@ public class CaseDocumentClientTest {
             .links(links).build();
     }
 
-
     private Document.Links getLinks() {
 
         Document.Links links = new Document.Links();
@@ -330,4 +325,5 @@ public class CaseDocumentClientTest {
 
         return links;
     }
+
 }
