@@ -14,5 +14,4 @@ public class DocumentUploadRequest {
     private String caseTypeId;
     private String jurisdictionId;
     private List<MultipartFile> files;
-    //private List<HttpEntity<Resource>> files;
 }

@@ -90,7 +90,6 @@ public class CaseDocumentClientTest {
     }
 
     @Test
-    // TODO: fix this test - use other PR to fix
     void shouldSuccessfullyUploadDocuments() throws JsonProcessingException {
 
         MockMultipartFile multipartFile = new MockMultipartFile("file1",

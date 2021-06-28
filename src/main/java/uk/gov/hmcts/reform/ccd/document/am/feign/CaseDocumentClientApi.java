@@ -66,19 +66,4 @@ public interface CaseDocumentClientApi {
                                       @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuth,
                                       @PathVariable(DOCUMENT_ID) UUID documentId,
                                       @RequestBody DocumentTTLRequest ttl);
-
-    @Configuration
-    @EnableFeignClients
-    class MultipartSupportConfig {
-
-        @Autowired
-        private ObjectFactory<HttpMessageConverters> messageConverters;
-
-        @Bean
-        @Primary
-        @Scope("prototype")
-        public Encoder feignFormEncoder() {
-            return new SpringFormEncoder(new SpringEncoder(messageConverters));
-        }
-    }
 }

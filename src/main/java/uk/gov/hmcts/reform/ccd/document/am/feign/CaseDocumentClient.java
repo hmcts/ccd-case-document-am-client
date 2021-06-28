@@ -39,7 +39,7 @@ public class CaseDocumentClient {
                                Classification.RESTRICTED);
     }
 
-    private UploadResponse uploadDocuments(String authorisation, String serviceAuth,
+    public UploadResponse uploadDocuments(String authorisation, String serviceAuth,
                                            String caseTypeId,
                                            String jurisdictionId,
                                            List<MultipartFile> files,
@@ -68,34 +68,6 @@ public class CaseDocumentClient {
     public DocumentTTLResponse patchDocument(String authorisation, String serviceAuth, UUID documentId,
                                              DocumentTTLRequest ttl) {
         return caseDocumentClientApi.patchDocument(authorisation, serviceAuth, documentId, ttl);
-    }
-
-    public static HttpEntity<Resource> buildPartFromFile(MultipartFile file) {
-        return new HttpEntity<>(buildByteArrayResource(file), buildPartHeaders(file));
-    }
-
-    private static HttpHeaders buildPartHeaders(MultipartFile file) {
-        requireNonNull(file.getContentType());
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(file.getContentType()));
-        return headers;
-    }
-
-    private static ByteArrayResource buildByteArrayResource(MultipartFile file) {
-        try {
-            return new ByteArrayResource(file.getBytes()) {
-                @Override
-                public String getFilename() {
-                    return file.getOriginalFilename();
-                }
-            };
-        } catch (IOException ioException) {
-            throw new IllegalStateException(ioException);
-        }
-    }
-
-    private List<HttpEntity<Resource>> transformMultiPartToResourceFiles(List<MultipartFile> multipartFiles) {
-        return multipartFiles.stream().map(CaseDocumentClient::buildPartFromFile).collect(Collectors.toList());
     }
 
 }
