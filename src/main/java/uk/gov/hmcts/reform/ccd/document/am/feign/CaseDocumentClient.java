@@ -35,7 +35,8 @@ public class CaseDocumentClient {
 
     public UploadResponse uploadDocuments(String authorisation, String serviceAuth, String caseTypeId,
                                           String jurisdictionId, List<MultipartFile> files) {
-        return uploadDocuments(authorisation, serviceAuth, caseTypeId, jurisdictionId, files, Classification.RESTRICTED);
+        return uploadDocuments(authorisation, serviceAuth, caseTypeId, jurisdictionId, files,
+                               Classification.RESTRICTED);
     }
 
     private UploadResponse uploadDocuments(String authorisation, String serviceAuth,
@@ -43,10 +44,6 @@ public class CaseDocumentClient {
                                            String jurisdictionId,
                                            List<MultipartFile> files,
                                            Classification classification) {
-
-//        List<HttpEntity<Resource>> httpResourceFiles = transformMultiPartToResourceFiles(files);
-
-
 
         DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(classification.toString(),
                                                                                 caseTypeId,
