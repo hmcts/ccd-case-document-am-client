@@ -45,17 +45,18 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
-@SpringBootTest(classes = {CaseDocumentClientApi.class})
+@SpringBootTest(classes = {CaseDocumentClient.class, CaseDocumentClientApi.class})
 @TestPropertySource(properties = "case_document_am.url=http://localhost:5170")
 @EnableAutoConfiguration
 @AutoConfigureWireMock(port = 5170)
-class CaseDocumentClientApiTest {
+public class CaseDocumentClientTest {
+
+    private static final Classification PUBLIC = Classification.PUBLIC;
 
     private static final UUID DOCUMENT_ID = UUID.randomUUID();
 
     private static final String URL = "/cases/documents";
 
-    private static final Classification PUBLIC = Classification.PUBLIC;
     private static final String CASE_TYPE_ID = "aCaseTypeId";
     private static final String JURISDICTION = "aJurisdictionId";
 
@@ -75,7 +76,7 @@ class CaseDocumentClientApiTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    private CaseDocumentClientApi caseDocumentClientApi;
+    private CaseDocumentClient caseDocumentClient;
 
     @BeforeEach
     void setUp() {
@@ -86,12 +87,15 @@ class CaseDocumentClientApiTest {
 
     @Test
     void shouldSuccessfullyUploadDocuments() throws JsonProcessingException {
-        MockMultipartFile multipartFile = new MockMultipartFile("file1", "test.png", "application/octet-stream",
+
+        MockMultipartFile multipartFile = new MockMultipartFile("file1",
+                                                                "test.png",
+                                                                "application/octet-stream",
                                                                 "someBytes".getBytes());
 
-        DocumentUploadRequest request = new DocumentUploadRequest(PUBLIC.name(),
-
+        DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
                                                                   CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
+
         Date ttl = new Date();
 
         Document.Links links = getLinks();
@@ -110,26 +114,25 @@ class CaseDocumentClientApiTest {
 
         stubForUpload(request, mockResponse);
 
-        UploadResponse uploadResponse = caseDocumentClientApi.uploadDocuments(
-            AUTHORISATION_VALUE, SERVICE_AUTHORISATION_VALUE, request);
+        UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
+            AUTHORISATION_VALUE, SERVICE_AUTHORISATION_VALUE, CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
 
         List<Document> documents = uploadResponse.getDocuments();
 
         assertThat(documents)
-                .hasSize(1)
-                .first()
-                .satisfies(document -> {
-                    assertThat(document.classification).isEqualTo(Classification.PUBLIC);
-                    assertThat(document.size).isEqualTo(1000);
-                    assertThat(document.mimeType).isEqualTo(MIME_TYPE);
-                    assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
-                    assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
-                    assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
-                    assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
-                    assertThat(document.ttl).isEqualTo(ttl);
-                }
+            .hasSize(1)
+            .first()
+            .satisfies(document -> {
+                        assertThat(document.classification).isEqualTo(Classification.PUBLIC);
+                        assertThat(document.size).isEqualTo(1000);
+                        assertThat(document.mimeType).isEqualTo(MIME_TYPE);
+                        assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
+                        assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
+                        assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
+                        assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
+                        assertThat(document.ttl).isEqualTo(ttl);
+                    }
             );
-
     }
 
     @Test
@@ -138,7 +141,7 @@ class CaseDocumentClientApiTest {
 
         stubForDocumentBinary(response);
 
-        ResponseEntity finalResponse = caseDocumentClientApi.getDocumentBinary(
+        ResponseEntity finalResponse = caseDocumentClient.getDocumentBinary(
             AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID
@@ -154,7 +157,7 @@ class CaseDocumentClientApiTest {
 
         stubForDocumentMetaData(response);
 
-        Document finalResponse = caseDocumentClientApi.getMetadataForDocument(
+        Document finalResponse = caseDocumentClient.getMetadataForDocument(
             AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID
@@ -173,7 +176,7 @@ class CaseDocumentClientApiTest {
 
         stubForDeleteDocument(DOCUMENT_ID, PERMANENT);
 
-        caseDocumentClientApi.deleteDocument(
+        caseDocumentClient.deleteDocument(
             AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID,
@@ -182,7 +185,7 @@ class CaseDocumentClientApiTest {
 
         WireMock.verify(deleteRequestedFor(
             urlPathEqualTo(URL + "/" + DOCUMENT_ID))
-               .withQueryParam(PERMANENT_QUERY_PARAM, equalTo(String.valueOf(PERMANENT))));
+                            .withQueryParam(PERMANENT_QUERY_PARAM, equalTo(String.valueOf(PERMANENT))));
     }
 
     @Test
@@ -196,7 +199,7 @@ class CaseDocumentClientApiTest {
 
         stubForPatch(request, response);
 
-        DocumentTTLResponse finalResponse = caseDocumentClientApi.patchDocument(
+        DocumentTTLResponse finalResponse = caseDocumentClient.patchDocument(
             AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID,
@@ -216,8 +219,8 @@ class CaseDocumentClientApiTest {
                     .withHeader(CONTENT_TYPE, containing(MULTIPART_FORM_DATA_VALUE))
                     .withMultipartRequestBody(
                         aMultipart()
-                          .withName("jurisdictionId")
-                          .withBody(containing(request.getJurisdictionId())))
+                            .withName("jurisdictionId")
+                            .withBody(containing(request.getJurisdictionId())))
                     .withMultipartRequestBody(
                         aMultipart()
                             .withName("caseTypeId")
