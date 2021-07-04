@@ -53,7 +53,10 @@ public class CaseDocumentClientTest {
 
     private static final Classification PUBLIC = Classification.PUBLIC;
 
-    private static final UUID DOCUMENT_ID = UUID.randomUUID();
+    private static final String SELF_LINK = "http://dm-store:8080/documents/80e9471e-0f67-42ef-8739-170aa1942363";
+    private static final String BINARY_LINK = "http://dm-store:8080/documents/80e9471e-0f67-42ef-8739-170aa1942363/binary";
+
+    private static final UUID DOCUMENT_ID = UUID.fromString(SELF_LINK.substring(SELF_LINK.length() - 36));
 
     private static final String URL = "/cases/documents";
 
@@ -70,8 +73,6 @@ public class CaseDocumentClientTest {
     public static final String HASH_TOKEN = "aHashToken";
     public static final String MIME_TYPE = "application/octet-stream";
     public static final String ORIGINAL_DOCUMENT_NAME = "test.png";
-    public static final String SELF_VALUE = "self_value";
-    public static final String BINARY_VALUE = "binary_value";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -128,8 +129,8 @@ public class CaseDocumentClientTest {
                         assertThat(document.mimeType).isEqualTo(MIME_TYPE);
                         assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
                         assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
-                        assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
-                        assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
+                        assertThat(document.links.binary.href).isEqualTo(BINARY_LINK);
+                        assertThat(document.links.self.href).isEqualTo(SELF_LINK);
                         assertThat(document.ttl).isEqualTo(ttl);
                     }
             );
@@ -145,6 +146,21 @@ public class CaseDocumentClientTest {
             AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID
+        );
+
+        assertEquals(HttpStatus.OK, finalResponse.getStatusCode());
+    }
+
+    @Test
+    void shouldGetDocumentBinaryWithBinaryHref() throws IOException {
+        ResponseEntity response = new ResponseEntity(HttpStatus.OK);
+
+        stubForDocumentBinary(response);
+
+        ResponseEntity finalResponse = caseDocumentClient.getDocumentBinary(
+            AUTHORISATION_VALUE,
+            SERVICE_AUTHORISATION_VALUE,
+            BINARY_LINK
         );
 
         assertEquals(HttpStatus.OK, finalResponse.getStatusCode());
@@ -169,6 +185,27 @@ public class CaseDocumentClientTest {
         assertEquals(finalResponse.mimeType, response.mimeType);
         assertEquals(finalResponse.links.self.href, response.links.self.href);
         assertEquals(finalResponse.links.binary.href, response.links.binary.href);
+    }
+
+    @Test
+    void shouldGetMetadataForDocumentWithSelfLink() throws IOException {
+
+        Document document = createDocument();
+
+        stubForDocumentMetaData(document);
+
+        Document finalResponse = caseDocumentClient.getMetadataForDocument(
+            AUTHORISATION_VALUE,
+            SERVICE_AUTHORISATION_VALUE,
+            SELF_LINK
+        );
+
+        assertEquals(finalResponse.createdOn, document.createdOn);
+        assertEquals(finalResponse.classification, document.classification);
+        assertEquals(finalResponse.size, document.size);
+        assertEquals(finalResponse.mimeType, document.mimeType);
+        assertEquals(finalResponse.links.self.href, document.links.self.href);
+        assertEquals(finalResponse.links.binary.href, document.links.binary.href);
     }
 
     @Test
@@ -203,6 +240,29 @@ public class CaseDocumentClientTest {
             AUTHORISATION_VALUE,
             SERVICE_AUTHORISATION_VALUE,
             DOCUMENT_ID,
+            request
+        );
+
+        assertEquals(finalResponse.getCreatedOn(), createdOn);
+        assertEquals(finalResponse.getModifiedOn(), modifiedOn);
+        assertEquals(finalResponse.getTtl(), ttl);
+    }
+
+    @Test
+    void shouldPatchDocumentWithSelfLink() throws IOException {
+        LocalDateTime createdOn = LocalDateTime.now().plusDays(1);
+        LocalDateTime modifiedOn = LocalDateTime.now().plusDays(2);
+        LocalDateTime ttl = LocalDateTime.now();
+
+        DocumentTTLRequest request = new DocumentTTLRequest(ttl);
+        DocumentTTLResponse response = new DocumentTTLResponse(createdOn, modifiedOn, ttl);
+
+        stubForPatch(request, response);
+
+        DocumentTTLResponse finalResponse = caseDocumentClient.patchDocument(
+            AUTHORISATION_VALUE,
+            SERVICE_AUTHORISATION_VALUE,
+            SELF_LINK,
             request
         );
 
@@ -309,9 +369,9 @@ public class CaseDocumentClientTest {
 
         Document.Links links = new Document.Links();
         Document.Link self = new Document.Link();
-        self.href = SELF_VALUE;
+        self.href = SELF_LINK;
         Document.Link binary = new Document.Link();
-        binary.href = BINARY_VALUE;
+        binary.href = BINARY_LINK;
         links.self = self;
         links.binary = binary;
 
