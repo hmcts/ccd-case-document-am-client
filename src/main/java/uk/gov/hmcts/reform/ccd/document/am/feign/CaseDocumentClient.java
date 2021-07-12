@@ -89,8 +89,8 @@ public class CaseDocumentClient {
         caseDocumentClientApi.deleteDocument(authorisation, serviceAuth, documentId, permanent);
     }
 
-    private UUID getDocumentIdFromSelfHref(String binaryHref) {
-        return UUID.fromString(binaryHref.substring(binaryHref.length() - DOC_UUID_LENGTH));
+    private UUID getDocumentIdFromSelfHref(String selfHref) {
+        return UUID.fromString(selfHref.substring(selfHref.length() - DOC_UUID_LENGTH));
     }
 
 }

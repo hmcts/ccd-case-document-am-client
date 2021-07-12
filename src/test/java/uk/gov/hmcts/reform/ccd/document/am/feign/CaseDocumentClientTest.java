@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -298,6 +300,22 @@ public class CaseDocumentClientTest {
         assertEquals(finalResponse.getResult(), "Success");
     }
 
+    @Test
+    void shouldFailWhenPatchDocumentWithCaseDocumentsMetadataReturnsBadRequest() throws IOException {
+
+        CaseDocumentsMetadata caseDocumentsMetadata = CaseDocumentsMetadata.builder()
+                .build();
+
+        stubForPatch(caseDocumentsMetadata, HttpStatus.BAD_REQUEST);
+
+        assertThrows(FeignException.BadRequest.class, () ->
+            caseDocumentClient.patchDocument(
+                    AUTHORISATION_VALUE,
+                    SERVICE_AUTHORISATION_VALUE,
+                    caseDocumentsMetadata)
+        );
+    }
+
     private void stubForUpload(DocumentUploadRequest request, UploadResponse mockResponse)
         throws JsonProcessingException {
         stubFor(WireMock.post(urlPathEqualTo(URL))
@@ -386,6 +404,20 @@ public class CaseDocumentClientTest {
                         .withStatus(HttpStatus.OK.value())
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                         .withBody(objectMapper.writeValueAsString(response))
+                )
+        );
+    }
+
+    private void stubForPatch(CaseDocumentsMetadata requestBody, HttpStatus httpStatus)
+            throws JsonProcessingException {
+        stubFor(WireMock.patch(WireMock.urlMatching(URL
+                + "/" + ATTACH_TO_CASE))
+                .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
+                .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
+                .withRequestBody(equalToJson(objectMapper.writeValueAsString(requestBody)))
+                .willReturn(aResponse()
+                        .withStatus(httpStatus.value())
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 )
         );
     }
