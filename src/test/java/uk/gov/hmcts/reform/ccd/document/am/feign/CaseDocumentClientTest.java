@@ -102,49 +102,7 @@ public class CaseDocumentClientTest {
                                                                 "application/octet-stream",
                                                                 "someBytes".getBytes());
 
-        DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
-                                                                  CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
-
-        Date ttl = new Date();
-
-        Document.Links links = getLinks();
-
-        Document mockDocument = Document.builder()
-            .classification(PUBLIC)
-            .hashToken(HASH_TOKEN)
-            .mimeType(MIME_TYPE)
-            .size(1000)
-            .originalDocumentName(ORIGINAL_DOCUMENT_NAME)
-            .ttl(ttl)
-            .links(links)
-            .build();
-
-        UploadResponse mockResponse = new UploadResponse(List.of(mockDocument));
-
-        stubForUpload(request, mockResponse);
-
-        UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
-            AUTHORISATION_VALUE,
-            SERVICE_AUTHORISATION_VALUE,
-            CASE_TYPE_ID,
-            JURISDICTION, List.of(multipartFile));
-
-        List<Document> documents = uploadResponse.getDocuments();
-
-        assertThat(documents)
-            .hasSize(1)
-            .first()
-            .satisfies(document -> {
-                        assertThat(document.classification).isEqualTo(Classification.PUBLIC);
-                        assertThat(document.size).isEqualTo(1000);
-                        assertThat(document.mimeType).isEqualTo(MIME_TYPE);
-                        assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
-                        assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
-                        assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
-                        assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
-                        assertThat(document.ttl).isEqualTo(ttl);
-                    }
-            );
+        assertDocumentUpload(multipartFile);
     }
 
     @Test
@@ -158,49 +116,7 @@ public class CaseDocumentClientTest {
         Files.copy(path, item.getOutputStream());
         MultipartFile multipartFile = new CommonsMultipartFile(item);
 
-        DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
-                                                                  CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
-
-        Date ttl = new Date();
-
-        Document.Links links = getLinks();
-
-        Document mockDocument = Document.builder()
-            .classification(PUBLIC)
-            .hashToken(HASH_TOKEN)
-            .mimeType(MIME_TYPE)
-            .size(1000)
-            .originalDocumentName(ORIGINAL_DOCUMENT_NAME)
-            .ttl(ttl)
-            .links(links)
-            .build();
-
-        UploadResponse mockResponse = new UploadResponse(List.of(mockDocument));
-
-        stubForUpload(request, mockResponse);
-
-        UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
-            AUTHORISATION_VALUE,
-            SERVICE_AUTHORISATION_VALUE,
-            CASE_TYPE_ID,
-            JURISDICTION, List.of(multipartFile));
-
-        List<Document> documents = uploadResponse.getDocuments();
-
-        assertThat(documents)
-            .hasSize(1)
-            .first()
-            .satisfies(document -> {
-                        assertThat(document.classification).isEqualTo(Classification.PUBLIC);
-                        assertThat(document.size).isEqualTo(1000);
-                        assertThat(document.mimeType).isEqualTo(MIME_TYPE);
-                        assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
-                        assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
-                        assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
-                        assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
-                        assertThat(document.ttl).isEqualTo(ttl);
-                    }
-            );
+        assertDocumentUpload(multipartFile);
     }
 
     @Test
@@ -354,6 +270,51 @@ public class CaseDocumentClientTest {
                                     .withBody(objectMapper.writeValueAsString(response))
                     )
         );
+    }
+
+    private void assertDocumentUpload(MultipartFile multipartFile) throws JsonProcessingException {
+        DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
+                                                                  CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
+
+        Date ttl = new Date();
+
+        Document.Links links = getLinks();
+
+        Document mockDocument = Document.builder()
+            .classification(PUBLIC)
+            .hashToken(HASH_TOKEN)
+            .mimeType(MIME_TYPE)
+            .size(1000)
+            .originalDocumentName(ORIGINAL_DOCUMENT_NAME)
+            .ttl(ttl)
+            .links(links)
+            .build();
+
+        UploadResponse mockResponse = new UploadResponse(List.of(mockDocument));
+
+        stubForUpload(request, mockResponse);
+
+        UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
+            AUTHORISATION_VALUE,
+            SERVICE_AUTHORISATION_VALUE,
+            CASE_TYPE_ID,
+            JURISDICTION, List.of(multipartFile));
+
+        List<Document> documents = uploadResponse.getDocuments();
+
+        assertThat(documents)
+            .hasSize(1)
+            .first()
+            .satisfies(document -> {
+                assertThat(document.classification).isEqualTo(Classification.PUBLIC);
+                assertThat(document.size).isEqualTo(1000);
+                assertThat(document.mimeType).isEqualTo(MIME_TYPE);
+                assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
+                assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
+                assertThat(document.links.binary.href).isEqualTo(BINARY_VALUE);
+                assertThat(document.links.self.href).isEqualTo(SELF_VALUE);
+                assertThat(document.ttl).isEqualTo(ttl);
+            });
     }
 
     private Document createDocument() {
