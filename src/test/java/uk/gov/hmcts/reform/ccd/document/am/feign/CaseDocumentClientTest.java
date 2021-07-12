@@ -16,11 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
+import uk.gov.hmcts.reform.ccd.document.am.model.CaseDocumentsMetadata;
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
+import uk.gov.hmcts.reform.ccd.document.am.model.DocumentHashToken;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
+import uk.gov.hmcts.reform.ccd.document.am.model.PatchDocumentMetaDataResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
 import java.io.IOException;
@@ -73,6 +76,7 @@ public class CaseDocumentClientTest {
     public static final String HASH_TOKEN = "aHashToken";
     public static final String MIME_TYPE = "application/octet-stream";
     public static final String ORIGINAL_DOCUMENT_NAME = "test.png";
+    private static final String ATTACH_TO_CASE = "attachToCase";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -271,6 +275,29 @@ public class CaseDocumentClientTest {
         assertEquals(finalResponse.getTtl(), ttl);
     }
 
+    @Test
+    void shouldSuccessfullyPatchDocumentWithCaseDocumentsMetadata() throws IOException {
+
+        CaseDocumentsMetadata caseDocumentsMetadata = CaseDocumentsMetadata.builder()
+                .caseId("caseId")
+                .caseTypeId("caseTypeId")
+                .jurisdictionId("jurisdictionId")
+                .documentHashTokens(List.of(DocumentHashToken.builder().build()))
+                .build();
+
+        PatchDocumentMetaDataResponse patchDocumentMetaDataResponse = new PatchDocumentMetaDataResponse("Success");
+
+        stubForPatch(caseDocumentsMetadata, patchDocumentMetaDataResponse);
+
+        PatchDocumentMetaDataResponse finalResponse = caseDocumentClient.patchDocument(
+                AUTHORISATION_VALUE,
+                SERVICE_AUTHORISATION_VALUE,
+                caseDocumentsMetadata
+        );
+
+        assertEquals(finalResponse.getResult(), "Success");
+    }
+
     private void stubForUpload(DocumentUploadRequest request, UploadResponse mockResponse)
         throws JsonProcessingException {
         stubFor(WireMock.post(urlPathEqualTo(URL))
@@ -345,6 +372,21 @@ public class CaseDocumentClientTest {
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                                     .withBody(objectMapper.writeValueAsString(response))
                     )
+        );
+    }
+
+    private void stubForPatch(CaseDocumentsMetadata requestBody, PatchDocumentMetaDataResponse response)
+            throws JsonProcessingException {
+        stubFor(WireMock.patch(WireMock.urlMatching(URL
+                + "/" + ATTACH_TO_CASE))
+                .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
+                .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
+                .withRequestBody(equalToJson(objectMapper.writeValueAsString(requestBody)))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                        .withBody(objectMapper.writeValueAsString(response))
+                )
         );
     }
 
