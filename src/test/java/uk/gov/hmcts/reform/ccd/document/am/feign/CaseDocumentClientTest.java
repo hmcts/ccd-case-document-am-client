@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
@@ -23,7 +28,11 @@ import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -87,53 +96,28 @@ public class CaseDocumentClientTest {
     }
 
     @Test
-    void shouldSuccessfullyUploadDocuments() throws JsonProcessingException {
+    void shouldSuccessfullyUploadDocumentsUsingMockMultiPartFile() throws IOException {
 
         MockMultipartFile multipartFile = new MockMultipartFile("file1",
                                                                 "test.png",
                                                                 "application/octet-stream",
                                                                 "someBytes".getBytes());
 
-        DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
-                                                                  CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
+        assertDocumentUpload(multipartFile);
+    }
 
-        Date ttl = new Date();
+    @Test
+    void shouldSuccessfullyUploadDocumentsUsingMultipartFileImplementation() throws IOException {
+        String url = "src/test/resources/validation.txt";
+        File file = new File(url);
+        FileItemFactory factory = new DiskFileItemFactory(16, file.getParentFile());
+        FileItem item = factory.createItem(file.getName(),"text/plain",true, file.getName());
 
-        Document.Links links = getLinks();
+        Path path = Paths.get(url);
+        Files.copy(path, item.getOutputStream());
+        MultipartFile multipartFile = new CommonsMultipartFile(item);
 
-        Document mockDocument = Document.builder()
-            .classification(PUBLIC)
-            .hashToken(HASH_TOKEN)
-            .mimeType(MIME_TYPE)
-            .size(1000)
-            .originalDocumentName(ORIGINAL_DOCUMENT_NAME)
-            .ttl(ttl)
-            .links(links)
-            .build();
-
-        UploadResponse mockResponse = new UploadResponse(List.of(mockDocument));
-
-        stubForUpload(request, mockResponse);
-
-        UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
-            AUTHORISATION_VALUE, SERVICE_AUTHORISATION_VALUE, CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
-
-        List<Document> documents = uploadResponse.getDocuments();
-
-        assertThat(documents)
-            .hasSize(1)
-            .first()
-            .satisfies(document -> {
-                        assertThat(document.classification).isEqualTo(Classification.PUBLIC);
-                        assertThat(document.size).isEqualTo(1000);
-                        assertThat(document.mimeType).isEqualTo(MIME_TYPE);
-                        assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
-                        assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
-                        assertThat(document.links.binary.href).isEqualTo(BINARY_LINK);
-                        assertThat(document.links.self.href).isEqualTo(SELF_LINK);
-                        assertThat(document.ttl).isEqualTo(ttl);
-                    }
-            );
+        assertDocumentUpload(multipartFile);
     }
 
     @Test
@@ -346,6 +330,51 @@ public class CaseDocumentClientTest {
                                     .withBody(objectMapper.writeValueAsString(response))
                     )
         );
+    }
+
+    private void assertDocumentUpload(MultipartFile multipartFile) throws JsonProcessingException {
+        DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
+                                                                  CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
+
+        Date ttl = new Date();
+
+        Document.Links links = getLinks();
+
+        Document mockDocument = Document.builder()
+            .classification(PUBLIC)
+            .hashToken(HASH_TOKEN)
+            .mimeType(MIME_TYPE)
+            .size(1000)
+            .originalDocumentName(ORIGINAL_DOCUMENT_NAME)
+            .ttl(ttl)
+            .links(links)
+            .build();
+
+        UploadResponse mockResponse = new UploadResponse(List.of(mockDocument));
+
+        stubForUpload(request, mockResponse);
+
+        UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
+            AUTHORISATION_VALUE,
+            SERVICE_AUTHORISATION_VALUE,
+            CASE_TYPE_ID,
+            JURISDICTION, List.of(multipartFile));
+
+        List<Document> documents = uploadResponse.getDocuments();
+
+        assertThat(documents)
+            .hasSize(1)
+            .first()
+            .satisfies(document -> {
+                assertThat(document.classification).isEqualTo(Classification.PUBLIC);
+                assertThat(document.size).isEqualTo(1000);
+                assertThat(document.mimeType).isEqualTo(MIME_TYPE);
+                assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
+                assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
+                assertThat(document.links.binary.href).isEqualTo(BINARY_LINK);
+                assertThat(document.links.self.href).isEqualTo(SELF_LINK);
+                assertThat(document.ttl).isEqualTo(ttl);
+            });
     }
 
     private Document createDocument() {
