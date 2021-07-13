@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import uk.gov.hmcts.reform.ccd.document.am.model.CaseDocumentsMetadata;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
+import uk.gov.hmcts.reform.ccd.document.am.model.PatchDocumentMetaDataResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
 import java.util.UUID;
@@ -55,4 +57,9 @@ public interface CaseDocumentClientApi {
                                       @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuth,
                                       @PathVariable(DOCUMENT_ID) UUID documentId,
                                       @RequestBody DocumentTTLRequest ttl);
+
+    @PatchMapping(value = "/attachToCase", produces = APPLICATION_JSON_VALUE)
+    PatchDocumentMetaDataResponse patchDocument(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
+                                                @RequestHeader(SERVICE_AUTHORIZATION) String serviceAuth,
+                                                @RequestBody CaseDocumentsMetadata caseDocumentsMetadata);
 }

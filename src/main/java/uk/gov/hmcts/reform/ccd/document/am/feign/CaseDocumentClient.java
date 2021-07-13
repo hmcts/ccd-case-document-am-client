@@ -5,11 +5,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.gov.hmcts.reform.ccd.document.am.model.CaseDocumentsMetadata;
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
+import uk.gov.hmcts.reform.ccd.document.am.model.PatchDocumentMetaDataResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 
 import java.util.List;
@@ -78,12 +80,17 @@ public class CaseDocumentClient {
         return caseDocumentClientApi.patchDocument(authorisation, serviceAuth, documentId, ttl);
     }
 
+    public PatchDocumentMetaDataResponse patchDocument(String authorisation, String serviceAuth,
+                                                       CaseDocumentsMetadata caseDocumentsMetadata) {
+        return caseDocumentClientApi.patchDocument(authorisation, serviceAuth, caseDocumentsMetadata);
+    }
+
     public void deleteDocument(String authorisation, String serviceAuth, UUID documentId, boolean permanent) {
         caseDocumentClientApi.deleteDocument(authorisation, serviceAuth, documentId, permanent);
     }
 
-    private UUID getDocumentIdFromSelfHref(String binaryHref) {
-        return UUID.fromString(binaryHref.substring(binaryHref.length() - DOC_UUID_LENGTH));
+    private UUID getDocumentIdFromSelfHref(String selfHref) {
+        return UUID.fromString(selfHref.substring(selfHref.length() - DOC_UUID_LENGTH));
     }
 
 }
