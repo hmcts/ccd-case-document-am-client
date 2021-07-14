@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.ccd.document.am.config;
 
+import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -14,9 +15,9 @@ import uk.gov.hmcts.reform.ccd.document.am.healthcheck.CaseDocumentManagementHea
 public class CaseDocumentManagementClientAutoConfiguration {
 
     @Bean
-    public CaseDocumentManagementHealthIndicator documentManagement(
-        CaseDocumentHealthClientApi caseDocumentHealthClientApi
-    ) {
+    @ConditionalOnEnabledHealthIndicator(value = "case-document-am-api")
+    public CaseDocumentManagementHealthIndicator caseDocumentManagementHealthIndicator(
+        CaseDocumentHealthClientApi caseDocumentHealthClientApi) {
         return new CaseDocumentManagementHealthIndicator(caseDocumentHealthClientApi);
     }
 }

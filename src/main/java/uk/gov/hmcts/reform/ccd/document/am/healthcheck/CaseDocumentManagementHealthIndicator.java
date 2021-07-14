@@ -2,12 +2,10 @@ package uk.gov.hmcts.reform.ccd.document.am.healthcheck;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentHealthClientApi;
 
-@ConditionalOnEnabledHealthIndicator(value = "case-document-am-api")
 public class CaseDocumentManagementHealthIndicator implements HealthIndicator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaseDocumentManagementHealthIndicator.class);
