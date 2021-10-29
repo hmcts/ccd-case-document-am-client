@@ -21,6 +21,12 @@ public class Document {
 
     public Date createdOn;
 
+    public Date modifiedOn;
+
+    public String createdBy;
+
+    public String lastModifiedBy;
+
     public Date ttl;
 
     public String hashToken;

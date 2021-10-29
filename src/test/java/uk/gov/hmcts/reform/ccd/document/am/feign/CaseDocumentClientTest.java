@@ -88,6 +88,8 @@ public class CaseDocumentClientTest {
     public static final String MIME_TYPE = "application/octet-stream";
     public static final String ORIGINAL_DOCUMENT_NAME = "test.png";
     private static final String ATTACH_TO_CASE = "attachToCase";
+    public static final String TEST_USER = "aTestUser";
+    public static final Date NOW = new Date();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -418,6 +420,10 @@ public class CaseDocumentClientTest {
             .classification(PUBLIC)
             .hashToken(HASH_TOKEN)
             .mimeType(MIME_TYPE)
+            .createdBy(TEST_USER)
+            .lastModifiedBy(TEST_USER)
+            .createdOn(NOW)
+            .modifiedOn(NOW)
             .size(1000)
             .originalDocumentName(ORIGINAL_DOCUMENT_NAME)
             .ttl(ttl)
@@ -443,6 +449,10 @@ public class CaseDocumentClientTest {
                 assertThat(document.classification).isEqualTo(Classification.PUBLIC);
                 assertThat(document.size).isEqualTo(1000);
                 assertThat(document.mimeType).isEqualTo(MIME_TYPE);
+                assertThat(document.createdBy).isEqualTo(TEST_USER);
+                assertThat(document.lastModifiedBy).isEqualTo(TEST_USER);
+                assertThat(document.createdOn).isEqualTo(NOW);
+                assertThat(document.modifiedOn).isEqualTo(NOW);
                 assertThat(document.originalDocumentName).isEqualTo(ORIGINAL_DOCUMENT_NAME);
                 assertThat(document.hashToken).isEqualTo(HASH_TOKEN);
                 assertThat(document.links.binary.href).isEqualTo(BINARY_LINK);
