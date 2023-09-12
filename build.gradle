@@ -143,7 +143,7 @@ dependencies {
   testImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
   }
-  testImplementation group: 'com.github.tomakehurst', name: 'wiremock-standalone', version: '2.19.0'
+  testImplementation group: 'com.github.tomakehurst', name: 'wiremock-standalone', version: '2.27.2'
 }
 
 wrapper {
