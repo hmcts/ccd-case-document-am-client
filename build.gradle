@@ -11,7 +11,7 @@ plugins {
 def versions = [
     junit       : '5.6.2',
     lombok      : '1.18.32',
-    springCloud : '2020.0.6'
+    springCloud : '2023.0.0'
 ]
 
 def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "1.0.0"
