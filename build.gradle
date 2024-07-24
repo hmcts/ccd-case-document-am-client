@@ -63,6 +63,10 @@ jar {
   enabled = true
 }
 
+bootJar {
+  enabled = false
+}
+
 tasks.register('printVersion') {
   doLast {
     print project.version
