@@ -60,6 +60,7 @@ jar {
   manifest {
     attributes 'Implementation-Title': project.name, 'Implementation-Version': project.version
   }
+  archiveClassifier = ""
 }
 
 tasks.register('printVersion') {
@@ -161,8 +162,4 @@ tasks.withType(Test).configureEach {
 
 bootJar {
   enabled = false
-}
-
-jar {
-  enabled = true
 }
