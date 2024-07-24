@@ -53,13 +53,17 @@ compileTestJava {
 }
 
 repositories {
+  mavenLocal()
   mavenCentral()
+  maven {
+    url 'https://jitpack.io'
+  }
 }
 
 jar {
-  manifest {
-    attributes 'Implementation-Title': project.name, 'Implementation-Version': project.version
-  }
+  enabled = true
+  archivesBaseName= "ccd-case-document-am-client"
+  archiveClassifier.set("")
 }
 
 tasks.register('printVersion') {
@@ -157,12 +161,4 @@ wrapper {
 
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
-}
-
-bootJar {
-  enabled = false
-}
-
-jar {
-  enabled = true
 }
