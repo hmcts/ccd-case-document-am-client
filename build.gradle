@@ -61,6 +61,10 @@ repositories {
 }
 
 jar {
+  manifest {
+    attributes 'Implementation-Title': project.name, 'Implementation-Version': project.version
+  }
+
   enabled = true
   archivesBaseName= "ccd-case-document-am-client"
   archiveClassifier.set("")
