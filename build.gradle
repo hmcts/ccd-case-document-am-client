@@ -65,7 +65,7 @@ repositories {
 jar {
   enabled = true
   archivesBaseName= "ccd-case-document-am-client"
-  archiveClassifier.set("")
+//  archiveClassifier.set("")
 }
 
 tasks.register('printVersion') {
