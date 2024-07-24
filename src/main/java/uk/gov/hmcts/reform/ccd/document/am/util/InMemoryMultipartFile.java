@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -79,7 +80,15 @@ public class InMemoryMultipartFile implements MultipartFile {
 
     @Override
     public void transferTo(File dest) throws IOException, IllegalStateException {
-        new FileOutputStream(dest).write(payload);
+        OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(dest);
+            outputStream.write(payload);
+        } finally {
+            if (outputStream != null) {
+                outputStream.close();
+            }
+        }
     }
 
     @Override
