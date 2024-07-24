@@ -60,6 +60,7 @@ jar {
   manifest {
     attributes 'Implementation-Title': project.name, 'Implementation-Version': project.version
   }
+  archivesBaseName= "ccd-case-document-am-client"
   archiveClassifier = ""
 }
 
@@ -158,8 +159,4 @@ wrapper {
 
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
-}
-
-bootJar {
-  enabled = false
 }
