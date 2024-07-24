@@ -14,14 +14,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import uk.gov.hmcts.reform.ccd.document.am.model.CaseDocumentsMetadata;
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
@@ -31,6 +33,7 @@ import uk.gov.hmcts.reform.ccd.document.am.model.DocumentTTLResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.PatchDocumentMetaDataResponse;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
+import uk.gov.hmcts.reform.ccd.document.am.util.InMemoryMultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +65,8 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 @SpringBootTest(classes = {CaseDocumentClient.class, CaseDocumentClientApi.class})
 @TestPropertySource(properties = "case_document_am.url=http://localhost:5170")
 @EnableAutoConfiguration
+@EnableFeignClients(basePackages = "uk.gov.hmcts.reform.ccd.document.am")
+@ImportAutoConfiguration({FeignAutoConfiguration.class})
 @AutoConfigureWireMock(port = 5170)
 public class CaseDocumentClientTest {
 
@@ -123,7 +128,7 @@ public class CaseDocumentClientTest {
 
         Path path = Paths.get(url);
         Files.copy(path, item.getOutputStream());
-        MultipartFile multipartFile = new CommonsMultipartFile(item);
+        MultipartFile multipartFile = new InMemoryMultipartFile(file);
 
         assertDocumentUpload(multipartFile);
     }

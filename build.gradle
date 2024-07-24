@@ -3,7 +3,7 @@ plugins {
   id 'java-library'
   id 'maven-publish'
   id 'io.spring.dependency-management' version '1.1.5'
-  id 'org.springframework.boot' version '3.3.0'
+  id 'org.springframework.boot' version '3.3.2'
   id 'uk.gov.hmcts.java' version '0.12.62'
   id 'com.github.ben-manes.versions' version '0.51.0'
 }
@@ -11,7 +11,8 @@ plugins {
 def versions = [
     junit       : '5.10.2',
     lombok      : '1.18.32',
-    springCloud : '2023.0.2'
+    springCloud : '2023.0.2',
+    openfeign   : '13.2.1'
 ]
 
 def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "1.0.0"
@@ -32,9 +33,15 @@ dependencyUpdates.resolutionStrategy = {
   }
 }
 
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
+
 allprojects {
-  sourceCompatibility = '11'
-  targetCompatibility = '11'
+  sourceCompatibility = '17'
+  targetCompatibility = '17'
 }
 
 compileJava {
@@ -126,8 +133,9 @@ dependencies {
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '13.2.1'
-  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '13.2.1'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.openfeign
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: versions.openfeign
+  implementation group: 'io.github.openfeign', name: 'feign-okhttp', version: versions.openfeign
   implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.17.1'
 
   compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok

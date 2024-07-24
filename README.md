@@ -16,7 +16,7 @@ The API Documentation provided at the top of this README point to the Swagger do
 
 ### Prerequisites
 
-- [JDK 11](https://www.oracle.com/java)
+- [JDK 17](https://www.oracle.com/java)
 
 ## Usage
 
