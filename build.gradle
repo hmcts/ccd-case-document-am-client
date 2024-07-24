@@ -61,6 +61,7 @@ jar {
     attributes 'Implementation-Title': project.name, 'Implementation-Version': project.version
   }
   enabled = true
+  archiveClassifier.set("")
 }
 
 bootJar {
