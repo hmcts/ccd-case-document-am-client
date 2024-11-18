@@ -12,7 +12,7 @@ def versions = [
     junit       : '5.11.0',
     lombok      : '1.18.36',
     springCloud : '2023.0.3',
-    openfeign   : '13.3'
+    openfeign   : '13.5'
 ]
 
 def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "1.0.0"
