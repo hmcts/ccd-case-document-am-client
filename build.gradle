@@ -9,7 +9,7 @@ plugins {
 }
 
 def versions = [
-    junit       : '5.11.3',
+    junit       : '5.11.4',
     lombok      : '1.18.36',
     springCloud : '2024.0.0',
     openfeign   : '13.5'
