@@ -1,9 +1,5 @@
 # ccd-case-document-am-client
 
-[![API v1](https://img.shields.io/badge/API%20Docs-v1-e140ad.svg)](https://hmcts.github.io/reform-api-docs/swagger.html?url=https://hmcts.github.io/reform-api-docs/specs/ccd-case-document-am-api.json)
-[![Build Status](https://travis-ci.com/hmcts/ccd-case-document-am-client.svg?branch=master)](https://travis-ci.com/hmcts/ccd-case-document-am-client)
-[![Release](https://jitpack.io/v/hmcts/ccd-case-document-am-client.svg)](https://jitpack.io/#hmcts/ccd-case-document-am-client)
-
 This is a client library for interacting with the ccd-case-document-am-api application. The two main responsibilities are:
  - upload the case document
  - download the case document
@@ -11,7 +7,6 @@ This is a client library for interacting with the ccd-case-document-am-api appli
  - delete the case document
  - patch the case document
 
-The API Documentation provided at the top of this README point to the Swagger documentation for the Case Document API.
 ## Getting started
 
 ### Prerequisites
@@ -20,11 +15,25 @@ The API Documentation provided at the top of this README point to the Swagger do
 
 ## Usage
 
-Just include the library as your dependency and you will be ready to use the client class. Health check for case-document-am-api is provided as well.
+This library is hosted on Azure DevOps Artifacts and can be used in your project by adding the following to your `build.gradle` file:
+
+```gradle
+repositories {
+  maven {
+    url = uri('https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1')
+  }
+}
+dependencies {
+  implementation 'com.github.hmcts:fortify-client:LATEST_TAG'
+}
+```
+
+This library also includes a health check for case-document-am-api is provided as well.
 
 Components provided by this library will get automatically configured in a Spring context if `ccd_case_document_am_api.url` configuration property is defined and does not equal `false`.
 
 ## Configurable Health Check
+
 To enable/disable the Health Check endpoint made available by this client, you need to set the following property in your `application.properties` or `application.yaml` Spring property file:
 ```
 management.health.case-document-am-api.enabled=false
@@ -38,10 +47,10 @@ management.health.case-document-am-api.enabled=true
 
 ## Building
 
-The project uses [Gradle](https://gradle.org) as a build tool but you don't have install it locally since there is a
+The project uses [Gradle](https://gradle.org) as a build tool. However, you don't have to install it locally since there is a
 `./gradlew` wrapper script.
 
-To build project please execute the following command:
+To build this project, please run the following command:
 
 ```bash
     ./gradlew build
@@ -67,4 +76,4 @@ build and publish the release to maven.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the MIT License—see the [LICENSE](LICENSE.md) file for details.
