@@ -24,7 +24,7 @@ repositories {
   }
 }
 dependencies {
-  implementation 'com.github.hmcts:fortify-client:LATEST_TAG'
+  implementation 'com.github.hmcts:com.github.hmcts:ccd-case-document-am-client:LATEST_TAG'
 }
 ```
 
