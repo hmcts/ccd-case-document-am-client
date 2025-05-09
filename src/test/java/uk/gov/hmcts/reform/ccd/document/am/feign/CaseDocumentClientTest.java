@@ -288,7 +288,7 @@ public class CaseDocumentClientTest {
                 caseDocumentsMetadata
         );
 
-        assertEquals(finalResponse.getResult(), "Success");
+        assertEquals("Success", finalResponse.getResult());
     }
 
     @Test

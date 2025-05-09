@@ -1,24 +1,22 @@
 plugins {
-  id 'checkstyle'
   id 'java-library'
   id 'maven-publish'
   id 'io.spring.dependency-management' version '1.1.7'
   id 'org.springframework.boot' version '3.4.5'
-  id 'uk.gov.hmcts.java' version '0.12.65'
+  id 'uk.gov.hmcts.java' version '0.12.66'
   id 'com.github.ben-manes.versions' version '0.52.0'
 }
 
 def versions = [
-    junit       : '5.12.2',
     lombok      : '1.18.38',
     springCloud : '2024.0.1',
     openfeign   : '13.6'
 ]
 
-def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "1.0.0"
+def buildNumber = System.getenv("RELEASE_VERSION")?: "DEV-SNAPSHOT"
 
-group 'uk.gov.hmcts.reform'
-version buildNumber
+group = 'com.github.hmcts'
+version = buildNumber
 
 dependencyUpdates.resolutionStrategy = {
   componentSelection { rules ->
@@ -37,11 +35,6 @@ java {
   toolchain {
     languageVersion = JavaLanguageVersion.of(17)
   }
-}
-
-allprojects {
-  sourceCompatibility = '17'
-  targetCompatibility = '17'
 }
 
 compileJava {
@@ -111,9 +104,9 @@ publishing {
       from components.java
       artifact sourcesJar
       artifact javadocJar
-      groupId project.group
-      artifactId 'ccd-case-document-am-client'
-      version project.version
+      groupId = project.group
+      artifactId = 'ccd-case-document-am-client'
+      version = project.version
 
       pom.withXml {
         def root = asNode()
@@ -122,6 +115,16 @@ publishing {
         root.appendNode('url', 'https://github.com/hmcts/ccd-case-document-am-client')
 
         root.children().last() + pomConfig
+      }
+    }
+  }
+  repositories {
+    maven {
+      name = "AzureArtifacts"
+      url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
+      credentials {
+        username = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
+        password = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
       }
     }
   }
@@ -147,13 +150,11 @@ dependencies {
   compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
-
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
   testImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
   }
+  testImplementation 'commons-io:commons-io:2.19.0'
   testImplementation group: 'com.github.tomakehurst', name: 'wiremock-standalone', version: '3.0.1'
 }
 
