@@ -18,7 +18,7 @@ def versions = [
 
 def buildNumber = System.getenv("RELEASE_VERSION")?.replace("refs/tags/", "") ?: "1.0.0"
 
-group 'uk.gov.hmcts.reform'
+group 'com.github.hmcts'
 version buildNumber
 
 dependencyUpdates.resolutionStrategy = {
@@ -48,10 +48,8 @@ compileTestJava {
 }
 
 repositories {
-  maven {
-    url 'https://jitpack.io'
-  }
-  jcenter()
+  mavenLocal()
+  mavenCentral()
 }
 
 jar {
@@ -112,6 +110,16 @@ publishing {
         root.appendNode('url', 'https://github.com/hmcts/ccd-case-document-am-client')
 
         root.children().last() + pomConfig
+      }
+    }
+  }
+  repositories {
+    maven {
+      name = "AzureArtifacts"
+      url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
+      credentials {
+        username = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
+        password = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
       }
     }
   }
