@@ -154,7 +154,7 @@ dependencies {
   testImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
   }
-  testImplementation 'commons-io:commons-io:2.19.0'
+  testImplementation 'commons-io:commons-io:2.20.0'
   testImplementation group: 'com.github.tomakehurst', name: 'wiremock-standalone', version: '3.0.1'
 }
 
