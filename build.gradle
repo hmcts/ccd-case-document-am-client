@@ -8,7 +8,7 @@ plugins {
 }
 
 def versions = [
-    lombok      : '1.18.40',
+    lombok      : '1.18.42',
     springCloud : '2025.0.0',
     openfeign   : '13.6'
 ]
