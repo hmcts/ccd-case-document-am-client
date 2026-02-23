@@ -145,7 +145,7 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.openfeign
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: versions.openfeign
   implementation group: 'io.github.openfeign', name: 'feign-okhttp', version: versions.openfeign
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.21.0'
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.21.1'
 
   compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
