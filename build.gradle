@@ -10,7 +10,7 @@ plugins {
 def versions = [
     lombok      : '1.18.42',
     springCloud : '2025.1.1',
-    openfeign   : '13.8'
+    openfeign   : '13.9.2'
 ]
 
 def buildNumber = System.getenv("RELEASE_VERSION")?: "DEV-SNAPSHOT"
