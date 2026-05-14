@@ -152,7 +152,7 @@ dependencies {
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.2.1'
-  testImplementation 'commons-io:commons-io:2.21.0'
+  testImplementation 'commons-io:commons-io:2.22.0'
 }
 
 wrapper {
