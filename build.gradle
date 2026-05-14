@@ -10,10 +10,9 @@ plugins {
 def versions = [
     lombok      : '1.18.46',
     springCloud : '2025.1.1',
-    openfeign   : '13.12'
 ]
 
-def buildNumber = System.getenv("RELEASE_VERSION")?: "DEV-SNAPSHOT"
+def buildNumber = System.getenv("RELEASE_VERSION") ?: "DEV-SNAPSHOT"
 
 group = 'com.github.hmcts'
 version = buildNumber
@@ -35,6 +34,9 @@ java {
   toolchain {
     languageVersion = JavaLanguageVersion.of(17)
   }
+
+  withSourcesJar()
+  withJavadocJar()
 }
 
 compileJava {
@@ -81,29 +83,11 @@ def pomConfig = {
   }
 }
 
-tasks.register('sourcesJar', Jar) {
-  dependsOn classes
-  archiveClassifier.set('sources')
-  from sourceSets.main.allSource
-}
-
-tasks.register('javadocJar', Jar) {
-  dependsOn javadoc
-  archiveClassifier.set('javadoc')
-  from javadoc.destinationDir
-}
-
-artifacts {
-  archives sourcesJar
-  archives javadocJar
-}
-
 publishing {
   publications {
     Main(MavenPublication) {
       from components.java
-      artifact sourcesJar
-      artifact javadocJar
+
       groupId = project.group
       artifactId = 'ccd-case-document-am-client'
       version = project.version
@@ -138,17 +122,14 @@ dependencyManagement {
 }
 
 dependencies {
-  implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names'
+  implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
 
-  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.openfeign
-  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: versions.openfeign
-  implementation group: 'io.github.openfeign', name: 'feign-okhttp', version: versions.openfeign
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.21.3'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+  implementation 'io.github.openfeign:feign-okhttp'
 
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+  compileOnly "org.projectlombok:lombok:${versions.lombok}"
+  annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.2.1'
