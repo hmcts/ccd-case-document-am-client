@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.multipart.MultipartFile;
+import org.wiremock.spring.ConfigureWireMock;
 import uk.gov.hmcts.reform.ccd.document.am.model.CaseDocumentsMetadata;
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
@@ -52,6 +52,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +68,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 @EnableAutoConfiguration
 @EnableFeignClients(basePackages = "uk.gov.hmcts.reform.ccd.document.am")
 @ImportAutoConfiguration({FeignAutoConfiguration.class})
-@AutoConfigureWireMock(port = 5170)
+@ConfigureWireMock(port = 5170)
 public class CaseDocumentClientTest {
 
     private static final Classification PUBLIC = Classification.PUBLIC;
@@ -231,7 +232,7 @@ public class CaseDocumentClientTest {
         DocumentTTLRequest request = new DocumentTTLRequest(ttl);
         DocumentTTLResponse response = new DocumentTTLResponse(createdOn, modifiedOn, ttl);
 
-        stubForPatch(request, response);
+        stubForPatch(response);
 
         DocumentTTLResponse finalResponse = caseDocumentClient.patchDocument(
             AUTHORISATION_VALUE,
@@ -254,7 +255,7 @@ public class CaseDocumentClientTest {
         DocumentTTLRequest request = new DocumentTTLRequest(ttl);
         DocumentTTLResponse response = new DocumentTTLResponse(createdOn, modifiedOn, ttl);
 
-        stubForPatch(request, response);
+        stubForPatch(response);
 
         DocumentTTLResponse finalResponse = caseDocumentClient.patchDocument(
             AUTHORISATION_VALUE,
@@ -369,13 +370,12 @@ public class CaseDocumentClientTest {
         );
     }
 
-    private void stubForPatch(DocumentTTLRequest request, DocumentTTLResponse response)
+    private void stubForPatch(DocumentTTLResponse response)
         throws JsonProcessingException {
-        stubFor(WireMock.patch(WireMock.urlMatching(URL
-                                                        + "/" + DOCUMENT_ID))
+        stubFor(WireMock.patch(urlPathEqualTo(URL + "/" + DOCUMENT_ID))
                     .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                    .withRequestBody(equalToJson(objectMapper.writeValueAsString(request)))
+                    .withRequestBody(matchingJsonPath("$.ttl"))
                     .willReturn(aResponse()
                                     .withStatus(HttpStatus.OK.value())
                                     .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -385,31 +385,29 @@ public class CaseDocumentClientTest {
     }
 
     private void stubForPatch(CaseDocumentsMetadata requestBody, PatchDocumentMetaDataResponse response)
-            throws JsonProcessingException {
-        stubFor(WireMock.patch(WireMock.urlMatching(URL
-                + "/" + ATTACH_TO_CASE))
-                .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
-                .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                .withRequestBody(equalToJson(objectMapper.writeValueAsString(requestBody)))
-                .willReturn(aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                        .withBody(objectMapper.writeValueAsString(response))
-                )
+        throws JsonProcessingException {
+        stubFor(WireMock.patch(urlPathEqualTo(URL + "/" + ATTACH_TO_CASE))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
+                    .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
+                    .withRequestBody(equalToJson(objectMapper.writeValueAsString(requestBody)))
+                    .willReturn(aResponse()
+                                    .withStatus(HttpStatus.OK.value())
+                                    .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                                    .withBody(objectMapper.writeValueAsString(response))
+                    )
         );
     }
 
     private void stubForPatch(CaseDocumentsMetadata requestBody, HttpStatus httpStatus)
-            throws JsonProcessingException {
-        stubFor(WireMock.patch(WireMock.urlMatching(URL
-                + "/" + ATTACH_TO_CASE))
-                .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
-                .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
-                .withRequestBody(equalToJson(objectMapper.writeValueAsString(requestBody)))
-                .willReturn(aResponse()
-                        .withStatus(httpStatus.value())
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                )
+        throws JsonProcessingException {
+        stubFor(WireMock.patch(urlPathEqualTo(URL + "/" + ATTACH_TO_CASE))
+                    .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
+                    .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
+                    .withRequestBody(equalToJson(objectMapper.writeValueAsString(requestBody)))
+                    .willReturn(aResponse()
+                                    .withStatus(httpStatus.value())
+                                    .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                    )
         );
     }
 

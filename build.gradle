@@ -2,7 +2,7 @@ plugins {
   id 'java-library'
   id 'maven-publish'
   id 'io.spring.dependency-management' version '1.1.7'
-  id 'org.springframework.boot' version '4.0.2'
+  id 'org.springframework.boot' version '4.0.6'
   id 'uk.gov.hmcts.java' version '0.12.67'
   id 'com.github.ben-manes.versions' version '0.53.0'
 }
@@ -150,12 +150,9 @@ dependencies {
   compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
-  testImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', {
-    exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
-  }
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.2.1'
   testImplementation 'commons-io:commons-io:2.21.0'
-  testImplementation group: 'com.github.tomakehurst', name: 'wiremock-standalone', version: '3.0.1'
 }
 
 wrapper {
