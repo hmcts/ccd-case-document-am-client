@@ -3,14 +3,14 @@ plugins {
   id 'maven-publish'
   id 'io.spring.dependency-management' version '1.1.7'
   id 'org.springframework.boot' version '4.0.6'
-  id 'uk.gov.hmcts.java' version '0.12.67'
+  id 'uk.gov.hmcts.java' version '0.12.70'
   id 'com.github.ben-manes.versions' version '0.54.0'
 }
 
 def versions = [
-    lombok      : '1.18.42',
+    lombok      : '1.18.46',
     springCloud : '2025.1.1',
-    openfeign   : '13.8'
+    openfeign   : '13.12'
 ]
 
 def buildNumber = System.getenv("RELEASE_VERSION")?: "DEV-SNAPSHOT"
@@ -145,14 +145,14 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.openfeign
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: versions.openfeign
   implementation group: 'io.github.openfeign', name: 'feign-okhttp', version: versions.openfeign
-  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.21.0'
+  implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.21.3'
 
   compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.2.1'
-  testImplementation 'commons-io:commons-io:2.21.0'
+  testImplementation 'commons-io:commons-io:2.22.0'
 }
 
 wrapper {
