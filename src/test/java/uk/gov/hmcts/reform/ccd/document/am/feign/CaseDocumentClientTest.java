@@ -1,16 +1,10 @@
 package uk.gov.hmcts.reform.ccd.document.am.feign;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import feign.FeignException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -24,6 +18,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.multipart.MultipartFile;
 import org.wiremock.spring.ConfigureWireMock;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.hmcts.reform.ccd.document.am.model.CaseDocumentsMetadata;
 import uk.gov.hmcts.reform.ccd.document.am.model.Classification;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
@@ -97,17 +93,10 @@ public class CaseDocumentClientTest {
     public static final String TEST_USER = "aTestUser";
     public static final Date NOW = new Date();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     @Autowired
     private CaseDocumentClient caseDocumentClient;
-
-    @BeforeEach
-    void setUp() {
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.registerModule(new ParameterNamesModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    }
 
     @Test
     void shouldSuccessfullyUploadDocumentsUsingMockMultiPartFile() throws IOException {
@@ -309,7 +298,7 @@ public class CaseDocumentClientTest {
     }
 
     private void stubForUpload(DocumentUploadRequest request, UploadResponse mockResponse)
-        throws JsonProcessingException {
+        throws IOException {
         stubFor(WireMock.post(urlPathEqualTo(URL))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
                     .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
@@ -334,7 +323,7 @@ public class CaseDocumentClientTest {
         );
     }
 
-    private void stubForDocumentBinary(ResponseEntity response) throws JsonProcessingException {
+    private void stubForDocumentBinary(ResponseEntity response) throws IOException {
         stubFor(WireMock.get(WireMock.urlMatching(URL
                                                       + "/" + DOCUMENT_ID
                                                       + "/binary"))
@@ -348,7 +337,7 @@ public class CaseDocumentClientTest {
         );
     }
 
-    private void stubForDocumentMetaData(Document response) throws JsonProcessingException {
+    private void stubForDocumentMetaData(Document response) throws IOException {
         stubFor(WireMock.get(WireMock.urlMatching(URL
                                                       + "/" + DOCUMENT_ID))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
@@ -371,7 +360,7 @@ public class CaseDocumentClientTest {
     }
 
     private void stubForPatch(DocumentTTLResponse response)
-        throws JsonProcessingException {
+        throws IOException {
         stubFor(WireMock.patch(urlPathEqualTo(URL + "/" + DOCUMENT_ID))
                     .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
@@ -385,7 +374,7 @@ public class CaseDocumentClientTest {
     }
 
     private void stubForPatch(CaseDocumentsMetadata requestBody, PatchDocumentMetaDataResponse response)
-        throws JsonProcessingException {
+        throws IOException {
         stubFor(WireMock.patch(urlPathEqualTo(URL + "/" + ATTACH_TO_CASE))
                     .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
@@ -399,7 +388,7 @@ public class CaseDocumentClientTest {
     }
 
     private void stubForPatch(CaseDocumentsMetadata requestBody, HttpStatus httpStatus)
-        throws JsonProcessingException {
+        throws IOException {
         stubFor(WireMock.patch(urlPathEqualTo(URL + "/" + ATTACH_TO_CASE))
                     .withHeader(AUTHORIZATION, equalTo(AUTHORISATION_VALUE))
                     .withHeader(SERVICE_AUTHORISATION_KEY, equalTo(SERVICE_AUTHORISATION_VALUE))
@@ -411,7 +400,7 @@ public class CaseDocumentClientTest {
         );
     }
 
-    private void assertDocumentUpload(MultipartFile multipartFile) throws JsonProcessingException {
+    private void assertDocumentUpload(MultipartFile multipartFile) throws IOException {
         DocumentUploadRequest request = new DocumentUploadRequest(Classification.RESTRICTED.name(),
                                                                   CASE_TYPE_ID, JURISDICTION, List.of(multipartFile));
 

@@ -5,7 +5,7 @@ plugins {
   id 'maven-publish'
   id 'org.springframework.boot' version '4.1.0'
   id 'uk.gov.hmcts.java' version '0.12.70'
-  id 'com.github.ben-manes.versions' version '0.59.0'
+  id 'io.github.ben-manes.versions' version '0.59.0'
 }
 
 def versions = [
@@ -18,7 +18,7 @@ def buildNumber = System.getenv("RELEASE_VERSION") ?: "DEV-SNAPSHOT"
 group = 'com.github.hmcts'
 version = buildNumber
 
-dependencyUpdates.resolutionStrategy = {
+dependencyUpdates.resolutionStrategy {
   componentSelection { rules ->
     rules.all { ComponentSelection selection ->
       boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
