@@ -119,10 +119,13 @@ dependencies {
   api platform(SpringBootPlugin.BOM_COORDINATES)
   api platform("org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}")
 
+  api 'com.fasterxml.jackson.core:jackson-annotations'
+
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-jackson'
+  implementation 'org.springframework.boot:spring-boot-http-converter'
   implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
   implementation 'io.github.openfeign:feign-okhttp'
-  implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
 
   compileOnly "org.projectlombok:lombok:${versions.lombok}"
   annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
