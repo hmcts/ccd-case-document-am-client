@@ -11,7 +11,7 @@ This is a client library for interacting with the ccd-case-document-am-api appli
 
 ### Prerequisites
 
-- [JDK 17](https://www.oracle.com/java)
+- [JDK 21](https://www.oracle.com/java)
 
 ## Usage
 

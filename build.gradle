@@ -5,7 +5,7 @@ plugins {
   id 'maven-publish'
   id 'org.springframework.boot' version '4.1.0'
   id 'uk.gov.hmcts.java' version '0.12.70'
-  id 'com.github.ben-manes.versions' version '0.56.0'
+  id 'io.github.ben-manes.versions' version '0.59.0'
 }
 
 def versions = [
@@ -18,7 +18,7 @@ def buildNumber = System.getenv("RELEASE_VERSION") ?: "DEV-SNAPSHOT"
 group = 'com.github.hmcts'
 version = buildNumber
 
-dependencyUpdates.resolutionStrategy = {
+dependencyUpdates.resolutionStrategy {
   componentSelection { rules ->
     rules.all { ComponentSelection selection ->
       boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
@@ -33,7 +33,7 @@ dependencyUpdates.resolutionStrategy = {
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(17)
+    languageVersion = JavaLanguageVersion.of(21)
   }
 
   withSourcesJar()
@@ -119,10 +119,13 @@ dependencies {
   api platform(SpringBootPlugin.BOM_COORDINATES)
   api platform("org.springframework.cloud:spring-cloud-dependencies:${versions.springCloud}")
 
+  api 'com.fasterxml.jackson.core:jackson-annotations'
+
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-jackson'
+  implementation 'org.springframework.boot:spring-boot-http-converter'
   implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
   implementation 'io.github.openfeign:feign-okhttp'
-  implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
 
   compileOnly "org.projectlombok:lombok:${versions.lombok}"
   annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
