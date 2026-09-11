@@ -9,7 +9,7 @@ plugins {
 }
 
 def versions = [
-    lombok      : '1.18.46',
+    lombok      : '1.18.48',
     springCloud : '2025.1.3',
 ]
 
