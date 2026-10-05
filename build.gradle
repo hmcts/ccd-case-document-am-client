@@ -131,7 +131,7 @@ dependencies {
   annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.2.3'
+  testImplementation 'org.wiremock.integrations:wiremock-spring-boot:4.4.2'
   testImplementation 'commons-io:commons-io:2.22.0'
 }
 
