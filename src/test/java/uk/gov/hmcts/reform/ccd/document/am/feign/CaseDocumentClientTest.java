@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +61,6 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 @SpringBootTest(classes = {CaseDocumentClient.class, CaseDocumentClientApi.class})
 @TestPropertySource(properties = "case_document_am.url=http://localhost:5170")
 @EnableAutoConfiguration
-@EnableFeignClients(basePackages = "uk.gov.hmcts.reform.ccd.document.am")
 @ImportAutoConfiguration({FeignAutoConfiguration.class})
 @ConfigureWireMock(port = 5170)
 public class CaseDocumentClientTest {
