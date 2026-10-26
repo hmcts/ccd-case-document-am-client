@@ -10,7 +10,7 @@ plugins {
 
 def versions = [
     lombok      : '1.18.48',
-    springCloud : '2025.1.3',
+    springCloud : '2025.1.4',
 ]
 
 def buildNumber = System.getenv("RELEASE_VERSION") ?: "DEV-SNAPSHOT"
