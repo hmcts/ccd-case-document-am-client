@@ -142,3 +142,7 @@ wrapper {
 tasks.withType(Test).configureEach {
   useJUnitPlatform()
 }
+
+dependencyCheck {
+  suppressionFile = 'config/owasp/suppressions.xml'
+}
